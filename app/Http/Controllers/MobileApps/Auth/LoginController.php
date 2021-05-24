@@ -19,13 +19,7 @@ class LoginController extends Controller
      *
      * @return string
      */
-    public function userId(Request $request, $type='password')
-    {
-        if(filter_var($request->user_id, FILTER_VALIDATE_EMAIL))
-            return 'email';
-        else
-            return 'mobile';
-    }
+
 
     /**
      * Validate the user login request.
@@ -38,7 +32,7 @@ class LoginController extends Controller
     protected function validateLogin(Request $request)
     {
         $request->validate([
-            'user_id' => $this->userId($request)=='email'?'required|email|string|exists:customers,email':'required|digits:10|string|exists:customers,mobile',
+            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|digits:10|string|exists:customers,username'),
             'password' => 'required|string',
         ], ['user_id.exists'=>'This account is not registered with us. Please signup to continue']);
     }
@@ -56,42 +50,53 @@ class LoginController extends Controller
         $this->validateLogin($request);
 
         if ($token=$this->attemptLogin($request)) {
-            return $this->sendLoginResponse($this->getCustomer($request), $token);
+            $user=Customer::getCustomer($request);
+            $user->notification_token=$request->notification_token;
+            $user->save();
+            return $this->sendLoginResponse($user, $token);
         }
         return [
             'status'=>'failed',
-            'token'=>'',
-            'message'=>'Credentials are not correct'
+            'message'=>'credentials_incorrect',
+            'display_message'=>'Credentials are not correct',
+            'data'=>[]
         ];
 
     }
 
-
     protected function attemptLogin(Request $request)
     {
         return Auth::guard('customerapi')->attempt(
-            [$this->userId($request)=>$request->user_id, 'password'=>$request->password]
+            [userId($request)=>$request->user_id, 'password'=>$request->password]
         );
-    }
-
-    protected function getCustomer(Request $request){
-        $customer=Customer::where($this->userId($request),$request->user_id)->first();
-        $customer->notification_token=$request->notification_token;
-        $customer->save();
-        return $customer;
     }
 
     protected function sendLoginResponse($user, $token){
         if($user->status==0){
             $otp=OTPModel::createOTP('customer', $user->id, 'login');
-            $msg=str_replace('{{otp}}', $otp, config('sms-templates.login'));
-            Nimbusit::send($user->mobile,$msg);
-            return ['status'=>'success', 'message'=>'otp verify', 'token'=>''];
+            //$msg=str_replace('{{otp}}', $otp, config('sms-templates.login'));
+            //Nimbusit::send($user->mobile,$msg);
+            return [
+                'status'=>'success',
+                'message'=>'otp_verify',
+                'display_message'=>'Please verify OTP sent on your email',
+                'data'=>[]
+            ];
         }
         else if($user->status==1)
-            return ['status'=>'success', 'message'=>'Login Successfull', 'token'=>$token];
+            return [
+                'status'=>'success',
+                'message'=>'login_successful',
+                'display_message'=>'Login Successful',
+                'data'=>compact('token')
+            ];
         else
-            return ['status'=>'failed', 'message'=>'This account has been blocked', 'token'=>''];
+            return [
+                'status'=>'failed',
+                'message'=>'account_blocked',
+                'display_message'=>'This account has been blocked',
+                'data'=>[]
+            ];
     }
 
 
@@ -103,33 +108,59 @@ class LoginController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    public function googleLogin(Request $request){
+        $request->validate([
+            'google_token'=>'required',
+            'notification_token'=>'required',
+        ]);
 
-    public function loginWithOtp(Request $request){
-        $this->validateOTPLogin($request);
+        $client= new \Google_Client(['client_id'=>env('GOOGLE_WEB_CLIENT_ID')]);
+        $payload = $client->verifyIdToken($request->google_token);
+        if (!isset($payload['email'])) {
+            return [
+                'status'=>'failed',
+                'message'=>'invalid_token',
+                'display_message'=>'Invalid Token Request',
+                'data'=>[]
+            ];
+        }
+        $email=$payload['email'];
+        $name=$payload['name']??'';
+        $picture=$payload['picture']??'';
 
-        $user=Customer::where('mobile', $request->mobile)->first();
-        if(!$user)
-            return ['status'=>'failed', 'message'=>'This account is not registered with us. Please signup to continue'];
+        $user=Customer::where('email', $email)->first();
+        if(!$user){
+            $user=Customer::create([
+                'name'=>$name,
+                'email'=>$email,
+                'email_verified_at'=>date('Y-m-d H:i:s'),
+                'username'=>'TTK'.time(),
+                'password'=>'none',
+                'status'=>1
+            ]);
+        }
 
         if(!in_array($user->status, [0,1]))
-            return ['status'=>'failed', 'message'=>'This account has been blocked'];
-
-        $otp=OTPModel::createOTP('customer', $user->id, 'login');
-        $msg=str_replace('{{otp}}', $otp, config('sms-templates.login'));
-        event(new SendOtp($user->mobile, $msg));
-
-        return ['status'=>'success', 'message'=>'Please verify OTP to continue'];
-    }
+            return [
+                'status'=>'failed',
+                'message'=>'account_blocked',
+                'display_message'=>'This account has been blocked',
+                'data'=>[]
+            ];
 
 
-    protected function validateOTPLogin(Request $request)
-    {
-        $request->validate([
-            'mobile' => 'required|digits:10|string|exists:customers',
-        ], ['mobile.*'=>'Account is not registered. Please register to continue']);
-    }
+        $user->notification_token=$request->notification_token;
+        $user->save();
 
-    public function gmailLogin(Request $request){
+        $token=Auth::guard('customerapi')->fromUser($user);
+
+        return [
+            'status'=>'success',
+            'message'=>'otp_verified',
+            'display'=>'OTP has been verified successfully',
+            'data'=>compact('token')
+        ];
+
 
     }
 

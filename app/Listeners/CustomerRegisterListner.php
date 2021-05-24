@@ -33,17 +33,17 @@ class CustomerRegisterListner implements ShouldQueue
         //send OTP
 
         $otp=OTPModel::createOTP('customer', $event->user->id, 'register');
-        $msg=str_replace('{{otp}}', $otp, config('sms-templates.register'));
-        Nimbusit::send($event->user->mobile,$msg);
-
-        //register on sendbird app
-        $sendbird=app('App\Services\SendBird\SendBird');
-        $response=$sendbird->createUser($event->user);
-
-        if(isset($response['user_id'])){
-            $event->user->sendbird_token=$response['access_token']??null;
-            $event->user->save();
-        }
+//        $msg=str_replace('{{otp}}', $otp, config('sms-templates.register'));
+//        Nimbusit::send($event->user->mobile,$msg);
+//
+//        //register on sendbird app
+//        $sendbird=app('App\Services\SendBird\SendBird');
+//        $response=$sendbird->createUser($event->user);
+//
+//        if(isset($response['user_id'])){
+//            $event->user->sendbird_token=$response['access_token']??null;
+//            $event->user->save();
+//        }
 
 
     }

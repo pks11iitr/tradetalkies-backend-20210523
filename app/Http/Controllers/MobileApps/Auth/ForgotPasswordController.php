@@ -13,40 +13,38 @@ use Illuminate\Support\Facades\Hash;
 class ForgotPasswordController extends Controller
 {
     public function forgot(Request $request){
+        $request->validate([
+            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|digits:10|string|exists:customers,username'),
+        ], ['user_id.exists'=>'This account is not registered with us. Please signup to continue']);
 
-        $customer=$this->getCustomer($request);
+        $customer=Customer::getCustomer($request);
         if(!$customer){
             return [
                 'status'=>'failed',
-                'message'=>'This account is not registered with us'
+                'message'=>'not_registered',
+                'display_message'=>'This account is not registered with us',
+                'data'=>[]
+            ];
+        }
+        if(!in_array($customer->status, [0,1])){
+            return [
+                'status'=>'failed',
+                'message'=>'account_blocked',
+                'display_message'=>'This account has been blocked',
+                'data'=>[]
             ];
         }
         $otp=OTPModel::createOTP('customer', $customer->id, 'reset');
-        $msg=str_replace('{{otp}}', $otp, config('sms-templates.reset'));
-        Nimbusit::send($customer->mobile,$msg);
-        return ['status'=>'success', 'message'=>'otp verify', 'token'=>''];
+//        $msg=str_replace('{{otp}}', $otp, config('sms-templates.reset'));
+//        Nimbusit::send($customer->mobile,$msg);
+        return [
+            'status'=>'success',
+            'message'=>'otp_verify',
+            'display_message'=>'Please verify OTP sent on your email',
+            'data'=>[]
+        ];
     }
 
-
-    protected function getCustomer(Request $request){
-        $customer=Customer::where($this->userId($request),$request->user_id)->first();
-//        $customer->notification_token=$request->notification_token;
-//        $customer->save();
-        return $customer;
-    }
-
-    /**
-     * Get the login username to be used by the controller.
-     *
-     * @return string
-     */
-    public function userId(Request $request, $type='password')
-    {
-        if(filter_var($request->user_id, FILTER_VALIDATE_EMAIL))
-            return 'email';
-        else
-            return 'mobile';
-    }
 
     public function updatePassword(Request $request){
 
@@ -54,7 +52,9 @@ class ForgotPasswordController extends Controller
         if(!$user){
             return [
                 'status'=>'failed',
-                'message'=>'Invalid Request'
+                'message'=>'invalid_request',
+                'display_message'=>'Invalid Request',
+                'data'=>[]
             ];
         }
 
@@ -63,7 +63,9 @@ class ForgotPasswordController extends Controller
 
         return [
             'status'=>'success',
-            'message'=>'Password Has Been Updated Successfully. Please log in to continue.'
+            'message'=>'password_updated',
+            'display_message'=>'Password Has Been Updated Successfully. Please log in to continue.',
+            'data'=>[]
         ];
 
     }

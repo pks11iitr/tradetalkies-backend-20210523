@@ -20,8 +20,14 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'mobile'=>['required', 'string', 'max:10']
+            'username' => ['required', 'string', 'max:25', 'unique:customers'],
+            'email'=>['required', 'email', 'max:50', 'unique:customers'],
+            'password'=>'required|min:5|max:20',
+        ], [
+            'username.max'=>'Username should be less than 20 characters',
+            'username.unique'=>'Username already registered. Please log in to continue',
+            'email.unique'=>'Email already registered. Please log in to continue',
+            'password.*'=>'Password length must be 5 to 20 characters'
         ]);
     }
 
@@ -34,27 +40,23 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return Customer::create([
-            'name' => $data['name'],
-            'mobile'=>$data['mobile'],
+            'username' => $data['username'],
+            'email'=>$data['email'],
+            'password'=>Hash::make($data['password'])
         ]);
     }
 
     public function register(Request $request)
     {
         $this->validator($request->all())->validate();
-
-        if($customer=Customer::where('mobile', $request->mobile)->first()){
-            return [
-                'status'=>'failed',
-                'message'=>'Email or mobile already registered'
-            ];
-        }
         $user = $this->create($request->all());
         event(new CustomerRegistered($user));
 
         return [
             'status'=>'success',
-            'message'=>'Please verify otp to continue'
+            'message'=>'Please Verify Email To Continue',
+            'display_message'=>'',
+            'data'=>[]
         ];
     }
 }

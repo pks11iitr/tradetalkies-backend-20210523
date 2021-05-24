@@ -14,21 +14,15 @@ $api = app('Dingo\Api\Routing\Router');
 |
 */
 
-$api->get('chat', function(){
-    return view('chat');
-});
-
 $api->get('app-version', 'MobileApps\Api\VersionController@version');
-
-//$api->post('login', 'MobileApps\Auth\LoginController@login');
-$api->post('login-with-otp', 'MobileApps\Auth\LoginController@loginWithOtp');
 $api->post('register', 'MobileApps\Auth\RegisterController@register');
-//$api->post('forgot', 'MobileApps\Auth\ForgotPasswordController@forgot');
 $api->post('verify-otp', 'MobileApps\Auth\OtpController@verify');
-$api->post('resend-otp', 'MobileApps\Auth\OtpController@resend');
-//$api->post('update-password', 'MobileApps\Auth\ForgotPasswordController@updatePassword');
+$api->post('send-otp', 'MobileApps\Auth\OtpController@resend');
+$api->post('reset-password', 'MobileApps\Auth\ForgotPasswordController@reset');
+$api->post('update-password', 'MobileApps\Auth\ForgotPasswordController@update');
+$api->post('login', 'MobileApps\Auth\LoginController@login');
 $api->post('fb-login', 'MobileApps\Auth\LoginController@facebookLogin');
-$api->post('gmail-login', 'MobileApps\Auth\LoginController@gmailLogin');
+$api->post('google-login', 'MobileApps\Auth\LoginController@googleLogin');
 //test comment again
 
 $api->group(['middleware' => ['customer-api-auth']], function ($api) {

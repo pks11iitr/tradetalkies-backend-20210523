@@ -29,7 +29,6 @@ class OtpController extends Controller
         ]);
 
         switch($request->type){
-            case 'register': return $this->verifyRegister($request);
             case 'login': return $this->verifyLogin($request);
             case 'reset': return $this->verifyResetPassword($request);
         }
@@ -37,38 +36,6 @@ class OtpController extends Controller
         return [
             'status'=>'failed',
             'message'=>'Request is not valid'
-        ];
-    }
-
-    protected function verifyRegister(Request $request){
-        $user=Customer::where('mobile', $request->mobile)->first();
-        if($user->status==0){
-            if(OTPModel::verifyOTP('customer',$user->id,$request->type,$request->otp)){
-
-                $user->notification_token=$request->notification_token;
-                $user->status=1;
-                $user->save();
-
-                return [
-                    'status'=>'success',
-                    'message'=>'OTP has been verified successfully',
-                    'token'=>Auth::guard('customerapi')->fromUser($user),
-                    'user_id'=>'Customer-'.$user->id,
-                    'sendbird_token'=>$user->sendbird_token
-                ];
-            }
-
-            return [
-                'status'=>'failed',
-                'message'=>'OTP is not correct',
-                'token'=>''
-            ];
-
-        }
-        return [
-            'status'=>'failed',
-            'message'=>'Request is not valid',
-            'token'=>''
         ];
     }
 
@@ -81,37 +48,33 @@ class OtpController extends Controller
                 $user->status=1;
                 $user->save();
 
-                if(empty($user->sendbird_token)){
-                    $sendbird=app('App\Services\SendBird\SendBird');
-                    $response=$sendbird->createUser($user);
-
-                    if(isset($response['user_id'])){
-                        $user->sendbird_token=$response['access_token']??null;
-                        $user->save();
-                    }
-                }
-
+                $token=Auth::guard('customerapi')->fromUser($user);
 
                 return [
                     'status'=>'success',
-                    'message'=>'OTP has been verified successfully',
-                    'token'=>Auth::guard('customerapi')->fromUser($user),
-                    'user_id'=>'Customer-'.$user->id,
-                    'sendbird_token'=>$user->sendbird_token
+                    'message'=>'otp_verified',
+                    'display'=>'OTP has been verified successfully',
+                    'data'=>compact('token')
                 ];
             }
 
+            $token=Auth::guard('customerapi')->fromUser($user);
+
             return [
                 'status'=>'failed',
-                'message'=>'OTP is not correct',
-                'token'=>''
+                'message'=>'incorrect_otp',
+                'display'=>'OTP is not correct',
+                'data'=>[]
             ];
 
         }
+        $token=Auth::guard('customerapi')->fromUser($user);
+
         return [
-            'status'=>'failed',
-            'message'=>'Account has been blocked',
-            'token'=>''
+            'status'=>'success',
+            'message'=>'otp_verified',
+            'display'=>'OTP has been verified successfully',
+            'data'=>compact('token')
         ];
     }
 
@@ -124,26 +87,29 @@ class OtpController extends Controller
                 $user->status=1;
                 $user->save();
 
+                $token=Auth::guard('customerapi')->fromUser($user);
+
                 return [
                     'status'=>'success',
-                    'message'=>'OTP Has Been Verified',
-                    'token'=>Auth::guard('customerapi')->fromUser($user),
-                    'user_id'=>'Customer-'.$user->id,
-                    'sendbird_token'=>$user->sendbird_token
+                    'message'=>'otp_verified',
+                    'display'=>'OTP has been verified successfully',
+                    'data'=>compact('token')
                 ];
             }
 
             return [
                 'status'=>'failed',
-                'message'=>'OTP is not correct',
-                'token'=>''
+                'message'=>'incorrect_otp',
+                'display'=>'OTP is not correct',
+                'data'=>[]
             ];
 
         }
         return [
             'status'=>'failed',
-            'message'=>'Account has been blocked',
-            'token'=>''
+            'message'=>'account_blocked',
+            'display_message'=>'This account has been blocked',
+            'data'=>[]
         ];
     }
 

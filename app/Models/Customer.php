@@ -81,4 +81,16 @@ class Customer extends Authenticatable implements JWTSubject
             ->first();
     }
 
+    public function watchlist(){
+        return $this->belongsToMany('App\Models\Stock', 'stocks_watchlist', 'customer_id', 'stock_id');
+    }
+
+    public function followings(){
+        return $this->belongsToMany('App\Models\Customer', 'followers', 'follower_id', 'customer_id');
+    }
+
+    public function followers(){
+        return $this->belongsToMany('App\Models\customer', 'followers', 'customer_id', 'follower_id');
+    }
+
 }

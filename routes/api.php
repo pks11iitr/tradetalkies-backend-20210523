@@ -29,6 +29,15 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
     $api->get('logout', 'MobileApps\Auth\LoginController@logout');
 
+    $api->get('home', 'MobileApps\Auth\HomeController@index');
+
+    $api->get('watchlist', 'MobileApps\Auth\WatchlistController@index');
+    $api->get('watchlist/add/{stock_id}', 'MobileApps\Auth\WatchlistController@addToWatchList');
+    $api->get('watchlist/remove/{stock_id}', 'MobileApps\Auth\WatchlistController@removeFromWatchList');
+
+    $api->get('feeds', 'MobileApps\Auth\PostController@feeds');
+
+
     $api->get('chats', 'MobileApps\Api\ChatController@chathistory');
     $api->post('start-chat/{store_id?}', 'MobileApps\Api\ChatController@startChat');
 

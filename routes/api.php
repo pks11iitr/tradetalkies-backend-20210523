@@ -37,6 +37,12 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
     $api->get('feeds', 'MobileApps\Auth\PostController@feeds');
 
+    $api->get('rooms', 'MobileApps\Auth\RoomController@index'); //params:type=free/paid/myrooms
+    $api->post('room/create', 'MobileApps\Auth\RoomController@add');
+    $api->get('room/members/{room_id}', 'MobileApps\Auth\RoomController@members');
+    $api->get('room/delete/{room_id}', 'MobileApps\Auth\RoomController@delete');
+
+
 
     $api->get('chats', 'MobileApps\Api\ChatController@chathistory');
     $api->post('start-chat/{store_id?}', 'MobileApps\Api\ChatController@startChat');

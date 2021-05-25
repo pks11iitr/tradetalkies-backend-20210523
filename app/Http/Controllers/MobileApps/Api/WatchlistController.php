@@ -34,7 +34,7 @@ class WatchlistController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'watchlist')
         ];
 
@@ -53,7 +53,7 @@ class WatchlistController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'watchlist')
         ];
 

@@ -21,7 +21,7 @@ class ForgotPasswordController extends Controller
         if(!$customer){
             return [
                 'status'=>'failed',
-                'message'=>'not_registered',
+                'action'=>'not_registered',
                 'display_message'=>'This account is not registered with us',
                 'data'=>[]
             ];
@@ -29,7 +29,7 @@ class ForgotPasswordController extends Controller
         if(!in_array($customer->status, [0,1])){
             return [
                 'status'=>'failed',
-                'message'=>'account_blocked',
+                'action'=>'account_blocked',
                 'display_message'=>'This account has been blocked',
                 'data'=>[]
             ];
@@ -39,7 +39,7 @@ class ForgotPasswordController extends Controller
 //        Nimbusit::send($customer->mobile,$msg);
         return [
             'status'=>'success',
-            'message'=>'otp_verify',
+            'action'=>'otp_verify',
             'display_message'=>'Please verify OTP sent on your email',
             'data'=>[]
         ];
@@ -52,7 +52,7 @@ class ForgotPasswordController extends Controller
         if(!$user){
             return [
                 'status'=>'failed',
-                'message'=>'invalid_request',
+                'action'=>'invalid_request',
                 'display_message'=>'Invalid Request',
                 'data'=>[]
             ];
@@ -63,7 +63,7 @@ class ForgotPasswordController extends Controller
 
         return [
             'status'=>'success',
-            'message'=>'password_updated',
+            'action'=>'password_updated',
             'display_message'=>'Password Has Been Updated Successfully. Please log in to continue.',
             'data'=>[]
         ];

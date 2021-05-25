@@ -35,7 +35,9 @@ class OtpController extends Controller
 
         return [
             'status'=>'failed',
-            'message'=>'Request is not valid'
+            'action'=>'invalid_request',
+            'display_message'=>'Invalid Request',
+            'data'=>[]
         ];
     }
 
@@ -52,8 +54,8 @@ class OtpController extends Controller
 
                 return [
                     'status'=>'success',
-                    'message'=>'otp_verified',
-                    'display'=>'OTP has been verified successfully',
+                    'action'=>'otp_verified',
+                    'display_message'=>'OTP has been verified successfully',
                     'data'=>compact('token')
                 ];
             }
@@ -62,8 +64,8 @@ class OtpController extends Controller
 
             return [
                 'status'=>'failed',
-                'message'=>'incorrect_otp',
-                'display'=>'OTP is not correct',
+                'action'=>'incorrect_otp',
+                'display_message'=>'OTP is not correct',
                 'data'=>[]
             ];
 
@@ -72,8 +74,8 @@ class OtpController extends Controller
 
         return [
             'status'=>'success',
-            'message'=>'otp_verified',
-            'display'=>'OTP has been verified successfully',
+            'action'=>'otp_verified',
+            'display_message'=>'OTP has been verified successfully',
             'data'=>compact('token')
         ];
     }
@@ -91,23 +93,23 @@ class OtpController extends Controller
 
                 return [
                     'status'=>'success',
-                    'message'=>'otp_verified',
-                    'display'=>'OTP has been verified successfully',
+                    'action'=>'otp_verified',
+                    'display_message'=>'OTP has been verified successfully',
                     'data'=>compact('token')
                 ];
             }
 
             return [
                 'status'=>'failed',
-                'message'=>'incorrect_otp',
-                'display'=>'OTP is not correct',
+                'action'=>'incorrect_otp',
+                'display_message'=>'OTP is not correct',
                 'data'=>[]
             ];
 
         }
         return [
             'status'=>'failed',
-            'message'=>'account_blocked',
+            'action'=>'account_blocked',
             'display_message'=>'This account has been blocked',
             'data'=>[]
         ];
@@ -123,17 +125,21 @@ class OtpController extends Controller
         $user=Customer::where('mobile', $request->mobile)->first();
         if(in_array($user->status, [0,1])){
                 $otp=OTPModel::createOTP('customer', $user->id, $request->type);
-                $msg=str_replace('{{otp}}', $otp, config('sms-templates.'.$request->type));
-                event(new SendOtp($user->mobile, $msg));
-                return [
-                    'status'=>'success',
-                    'message'=>'Please verify OTP to continue',
-                ];
+//                $msg=str_replace('{{otp}}', $otp, config('sms-templates.'.$request->type));
+//                event(new SendOtp($user->mobile, $msg));
+            return [
+                'status'=>'success',
+                'action'=>'otp_verify',
+                'display_message'=>'Please verify OTP sent on your email',
+                'data'=>[]
+            ];
         }
 
         return [
             'status'=>'failed',
-            'message'=>'Account has been blocked',
+            'action'=>'account_blocked',
+            'display_message'=>'This account has been blocked',
+            'data'=>[]
         ];
 
     }

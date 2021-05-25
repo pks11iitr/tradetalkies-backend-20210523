@@ -57,7 +57,7 @@ class LoginController extends Controller
         }
         return [
             'status'=>'failed',
-            'message'=>'credentials_incorrect',
+            'action'=>'credentials_incorrect',
             'display_message'=>'Credentials are not correct',
             'data'=>[]
         ];
@@ -78,7 +78,7 @@ class LoginController extends Controller
             //Nimbusit::send($user->mobile,$msg);
             return [
                 'status'=>'success',
-                'message'=>'otp_verify',
+                'action'=>'otp_verify',
                 'display_message'=>'Please verify OTP sent on your email',
                 'data'=>[]
             ];
@@ -86,14 +86,14 @@ class LoginController extends Controller
         else if($user->status==1)
             return [
                 'status'=>'success',
-                'message'=>'login_successful',
+                'action'=>'login_successful',
                 'display_message'=>'Login Successful',
                 'data'=>compact('token')
             ];
         else
             return [
                 'status'=>'failed',
-                'message'=>'account_blocked',
+                'action'=>'account_blocked',
                 'display_message'=>'This account has been blocked',
                 'data'=>[]
             ];
@@ -119,7 +119,7 @@ class LoginController extends Controller
         if (!isset($payload['email'])) {
             return [
                 'status'=>'failed',
-                'message'=>'invalid_token',
+                'action'=>'invalid_token',
                 'display_message'=>'Invalid Token Request',
                 'data'=>[]
             ];
@@ -143,7 +143,7 @@ class LoginController extends Controller
         if(!in_array($user->status, [0,1]))
             return [
                 'status'=>'failed',
-                'message'=>'account_blocked',
+                'action'=>'account_blocked',
                 'display_message'=>'This account has been blocked',
                 'data'=>[]
             ];
@@ -156,8 +156,8 @@ class LoginController extends Controller
 
         return [
             'status'=>'success',
-            'message'=>'otp_verified',
-            'display'=>'OTP has been verified successfully',
+            'action'=>'otp_verified',
+            'display_message'=>'OTP has been verified successfully',
             'data'=>compact('token')
         ];
 
@@ -173,7 +173,10 @@ class LoginController extends Controller
         $user->notification_token=null;
         $user->save();
         return [
-            'status'=>'success'
+            'status'=>'success',
+            'action'=>'logout_success',
+            'display_message'=>'User has been logged out',
+            'data'=>[]
         ];
     }
 

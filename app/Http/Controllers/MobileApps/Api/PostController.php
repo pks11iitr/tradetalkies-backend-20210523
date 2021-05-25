@@ -38,7 +38,27 @@ class PostController extends Controller
 
     }
 
-    public function create(Request $request){
+    public function store(Request $request){
+        $request->validate([
+            'content'=>'required|max:1000',
+            'images'=>'required|array',
+        ]);
+
+        $user=$request->user;
+
+        $post=new Post($request->only('parent_id', 'stock_id', 'content'));
+
+        $user->posts()->save($post);
+
+        foreach($request->images as $image)
+            $post->saveDocument($image, 'posts');
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'Post Has Been Created Successfully',
+            'data'=>[]
+        ];
 
     }
 

@@ -97,4 +97,11 @@ class Customer extends Authenticatable implements JWTSubject
         return $this->belongsToMany('App\Models\Room', 'customer_id', 'room_id');
     }
 
+
+    public function posts(){
+        return $this->hasMany('App\Models\Post', 'customer_id');
+    }
+
+
+
 }

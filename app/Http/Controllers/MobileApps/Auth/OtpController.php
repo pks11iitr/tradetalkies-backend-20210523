@@ -24,9 +24,9 @@ class OtpController extends Controller
     public function verify(Request $request){
         $request->validate([
             'type'=>'required|string|max:15',
-            'mobile'=>'required|string|digits:10|exists:customers',
+            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|string|exists:customers,username'),
             'otp'=>'required|digits:6'
-        ]);
+        ],['user_id.*'=>'This account is not registered with us.']);
 
         switch($request->type){
             case 'login': return $this->verifyLogin($request);
@@ -43,7 +43,7 @@ class OtpController extends Controller
 
 
     protected function verifyLogin(Request $request){
-        $user=Customer::where('mobile', $request->mobile)->first();
+        $user=Customer::where(userId($request), $request->user_id)->first();
         if(in_array($user->status, [0,1])){
             if(OTPModel::verifyOTP('customer',$user->id,$request->type,$request->otp)){
                 $user->notification_token=$request->notification_token;
@@ -82,7 +82,7 @@ class OtpController extends Controller
 
 
     protected function verifyResetPassword(Request $request){
-        $user=Customer::where('mobile', $request->mobile)->first();
+        $user=Customer::where(userId($request), $request->user_id)->first();
         if(in_array($user->status, [0,1])){
             if(OTPModel::verifyOTP('customer',$user->id,$request->type,$request->otp)){
 
@@ -119,10 +119,10 @@ class OtpController extends Controller
     public function resend(Request $request){
         $request->validate([
             'type'=>'required|string|max:15',
-            'mobile'=>'required|string|digits:10|exists:customers',
-        ]);
+            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|string|exists:customers,username'),
+        ], ['user_id.*'=>'This account is not registered with us.']);
 
-        $user=Customer::where('mobile', $request->mobile)->first();
+        $user=Customer::where(userId($request), $request->user_id)->first();
         if(in_array($user->status, [0,1])){
                 $otp=OTPModel::createOTP('customer', $user->id, $request->type);
 //                $msg=str_replace('{{otp}}', $otp, config('sms-templates.'.$request->type));
@@ -130,7 +130,7 @@ class OtpController extends Controller
             return [
                 'status'=>'success',
                 'action'=>'otp_verify',
-                'display_message'=>'Please verify OTP sent on your email',
+                'display_message'=>'OTP Has Been Resent',
                 'data'=>[]
             ];
         }

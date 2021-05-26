@@ -54,8 +54,8 @@ class RegisterController extends Controller
 
         return [
             'status'=>'success',
-            'message'=>'Please Verify Email To Continue',
-            'display_message'=>'',
+            'action'=>'register_success',
+            'display_message'=>'Please Verify Email To Continue',
             'data'=>[]
         ];
     }

@@ -32,7 +32,7 @@ class CustomerRegisterListner implements ShouldQueue
     {
         //send OTP
 
-        $otp=OTPModel::createOTP('customer', $event->user->id, 'register');
+        $otp=OTPModel::createOTP('customer', $event->user->id, 'login');
 //        $msg=str_replace('{{otp}}', $otp, config('sms-templates.register'));
 //        Nimbusit::send($event->user->mobile,$msg);
 //

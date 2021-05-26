@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordController extends Controller
 {
-    public function forgot(Request $request){
+    public function reset(Request $request){
         $request->validate([
-            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|digits:10|string|exists:customers,username'),
+            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|string|exists:customers,username'),
         ], ['user_id.exists'=>'This account is not registered with us. Please signup to continue']);
 
         $customer=Customer::getCustomer($request);
@@ -46,7 +46,11 @@ class ForgotPasswordController extends Controller
     }
 
 
-    public function updatePassword(Request $request){
+    public function update(Request $request){
+
+        $request->validate([
+            'password'=>'required|string|min:6'
+        ]);
 
         $user=auth()->guard('customerapi')->user();
         if(!$user){

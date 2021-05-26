@@ -13,9 +13,11 @@ class VersionController extends Controller
         $version=AppVersion::orderBy('id', 'desc')->first();
         return [
             'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
             'data'=>[
-                'customer_version'=>$version->customer_version??'',
-                'rider_version'=>$version->rider_version??''
+                'android_version'=>$version->android_version??'',
+                'ios_version'=>$version->ios_version??''
             ]
         ];
     }

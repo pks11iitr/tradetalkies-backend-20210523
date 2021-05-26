@@ -17,7 +17,7 @@ $api = app('Dingo\Api\Routing\Router');
 $api->get('app-version', 'MobileApps\Api\VersionController@version');
 $api->post('register', 'MobileApps\Auth\RegisterController@register');
 $api->post('verify-otp', 'MobileApps\Auth\OtpController@verify');
-$api->post('send-otp', 'MobileApps\Auth\OtpController@resend');
+$api->post('resend-otp', 'MobileApps\Auth\OtpController@resend');
 $api->post('reset-password', 'MobileApps\Auth\ForgotPasswordController@reset');
 $api->post('update-password', 'MobileApps\Auth\ForgotPasswordController@update');
 $api->post('login', 'MobileApps\Auth\LoginController@login');

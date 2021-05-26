@@ -29,7 +29,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
     $api->get('logout', 'MobileApps\Auth\LoginController@logout');
 
-    $api->get('home', 'MobileApps\Auth\HomeController@index');
+    $api->get('home', 'MobileApps\Api\HomeController@index');
 
     $api->get('watchlist', 'MobileApps\Auth\WatchlistController@index');
     $api->get('watchlist/add/{stock_id}', 'MobileApps\Auth\WatchlistController@addToWatchList');

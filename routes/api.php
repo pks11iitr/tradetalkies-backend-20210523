@@ -47,6 +47,11 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
     $api->post('recharge','MobileApps\Api\WalletController@addMoney');
 
+    $api->get('price-alerts', 'MobileApps\Api\PriceAlertController@myalerts');
+    $api->post('add-alert', 'MobileApps\Api\PriceAlertController@add');
+    $api->get('delete-alert/{id}', 'MobileApps\Api\PriceAlertController@delete');
+    $api->post('alert-search', 'MobileApps\Api\PriceAlertController@search');
+
     $api->get('chats', 'MobileApps\Api\ChatController@chathistory');
     $api->post('start-chat/{store_id?}', 'MobileApps\Api\ChatController@startChat');
 

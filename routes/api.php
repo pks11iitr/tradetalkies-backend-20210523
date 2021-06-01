@@ -35,15 +35,15 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('watchlist/add/{stock_id}', 'MobileApps\Auth\WatchlistController@addToWatchList');
     $api->get('watchlist/remove/{stock_id}', 'MobileApps\Auth\WatchlistController@removeFromWatchList');
 
-    $api->get('feeds', 'MobileApps\Auth\PostController@feeds');
+    $api->get('feeds', 'MobileApps\Api\PostController@feeds');
 
     $api->get('rooms', 'MobileApps\Auth\RoomController@index'); //params:type=free/paid/myrooms
     $api->post('room/create', 'MobileApps\Auth\RoomController@add');
     $api->get('room/members/{room_id}', 'MobileApps\Auth\RoomController@members');
     $api->get('room/delete/{room_id}', 'MobileApps\Auth\RoomController@delete');
 
-    $api->post('post/create', 'MobileApps\Auth\PostController@store');
-    $api->post('post-stock-search', 'MobileApps\Auth\PostController@searchStocks');
+    $api->post('post/create', 'MobileApps\Api\PostController@store');
+    $api->post('post-stock-search', 'MobileApps\Api\PostController@searchStocks');
 
     $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
     $api->post('recharge','MobileApps\Api\WalletController@addMoney');

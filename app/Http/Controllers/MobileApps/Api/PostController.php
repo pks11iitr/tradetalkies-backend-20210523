@@ -14,21 +14,37 @@ class PostController extends Controller
 
         $user=$request->user;
 
-        $watchlist=$user->watchlist()->select('id')->get()->map(function($element){
+//        $watchlist=$user->watchlist()->select('id')->get()->map(function($element){
+//            return $element->id;
+//        })->toArray();
+
+        $followings=$user->followings()->select('customers.id')->get()->map(function($element){
             return $element->id;
         })->toArray();
 
-        $followings=$user->followings()->select('id')->get()->map(function($element){
+        $rooms=$user->rooms()->select('rooms.id')->get()->map(function($element){
             return $element->id;
         })->toArray();
 
 
-        $feeds=Post::with('gallery')
-            ->where(function($query) use($user, $watchlist,$followings){
-                $query->whereIn('stock_id', $watchlist)
-                    ->orWhereIn('customer_id', $followings)
-                    ->orWhere('customer_id', $user->id);
+        $feeds=Post::with(['gallery'=>function($gallery){
+            $gallery->select('id', 'image');
+        }, 'customer'=>function($customer){
+            $customer->select('id', 'username', 'image');
+        }])
+            //self created posts
+            ->where('customer_id', $user->id)
+            //followings post
+            ->orWhere(function($query) use($followings){
+                $query->whereNull('room_id')
+                    ->where('customer_id', $followings);
             })
+            //room posts
+            ->orWhere(function($query) use($rooms){
+                $query->whereNotNull('room_id')
+                    ->where('room_id', $rooms);
+            })
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return [
@@ -44,12 +60,13 @@ class PostController extends Controller
         $request->validate([
             'content'=>'required|max:1000',
             'images'=>'required|array',
-            'stock_ids'=>'array'
+            'stock_ids'=>'array',
+            'room_id'=>'integer'
         ]);
 
         $user=$request->user;
 
-        $post=new Post($request->only('parent_id', 'stock_id', 'content'));
+        $post=new Post($request->only('parent_id', 'content', 'room_id'));
 
         if(!$request->stock_ids)
             $post->stocks()->sync($request->stock_ids);

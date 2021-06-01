@@ -25,7 +25,7 @@ class Customer extends Authenticatable implements JWTSubject
         'password','created_at','deleted_at','updated_at','email','mobile'
     ];
 
-    protected $appends=['age'];
+    //protected $appends=['age'];
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -94,7 +94,7 @@ class Customer extends Authenticatable implements JWTSubject
     }
 
     public function rooms(){
-        return $this->belongsToMany('App\Models\Room', 'customer_id', 'room_id');
+        return $this->belongsToMany('App\Models\Room', 'room_members', 'customer_id', 'room_id');
     }
 
 

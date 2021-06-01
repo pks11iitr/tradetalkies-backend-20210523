@@ -14,5 +14,9 @@ class Post extends Model
 
     protected $fillable=['parent_id', 'stock_id', 'customer_id', 'content'];
 
+    public function stocks(){
+        return $this->belongsToMany('App\Models\Post', 'post_id', 'stock_id');
+    }
+
 
 }

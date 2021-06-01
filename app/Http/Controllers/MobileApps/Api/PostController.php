@@ -4,6 +4,8 @@ namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Models\PriceAlert;
+use App\Models\Stock;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -42,11 +44,15 @@ class PostController extends Controller
         $request->validate([
             'content'=>'required|max:1000',
             'images'=>'required|array',
+            'stock_ids'=>'array'
         ]);
 
         $user=$request->user;
 
         $post=new Post($request->only('parent_id', 'stock_id', 'content'));
+
+        if(!$request->stock_ids)
+            $post->stocks()->sync($request->stock_ids);
 
         $user->posts()->save($post);
 
@@ -60,6 +66,23 @@ class PostController extends Controller
             'data'=>[]
         ];
 
+    }
+
+    public function searchStocks(Request $request){
+
+        $stocks=Stock::where(function($query)use($request){
+            $query->where('name', 'like', '%'.$request->search.'%')
+                ->orWhere('code', 'like', '%'.$request->search.'%');
+        });
+
+        $stocks = $stocks->take(5)->get();
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'message'=>'',
+            'data'=>compact('stocks')
+        ];
     }
 
 

@@ -43,6 +43,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('room/delete/{room_id}', 'MobileApps\Auth\RoomController@delete');
 
     $api->post('post/create', 'MobileApps\Auth\PostController@store');
+    $api->post('post-stock-search', 'MobileApps\Auth\PostController@searchStocks');
 
     $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
     $api->post('recharge','MobileApps\Api\WalletController@addMoney');

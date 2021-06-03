@@ -13,11 +13,16 @@ use Illuminate\Support\Facades\Hash;
 class ForgotPasswordController extends Controller
 {
     public function reset(Request $request){
-        $request->validate([
-            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|string|exists:customers,username'),
-        ], ['user_id.exists'=>'This account is not registered with us. Please signup to continue']);
+//        $request->validate([
+//            'user_id' => userId($request)=='email'?('required|email|string|exists:customers,email'):('required|string|exists:customers,username'),
+//        ], ['user_id.exists'=>'This account is not registered with us. Please signup to continue']);
+//
+//        $customer=Customer::getCustomer($request);
 
-        $customer=Customer::getCustomer($request);
+        $customer=Customer::where('username', $request->user_id)
+            ->orWhere('email', $request->user_id)
+            ->first();
+
         if(!$customer){
             return [
                 'status'=>'failed',

@@ -47,10 +47,22 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $this->validateLogin($request);
+        //$this->validateLogin($request);
+        $user=Customer::where('username', $request->user_id)
+            ->orWhere('email', $request->user_id)
+            ->first();
+
+        if(!$user){
+            return [
+                'status'=>'failed',
+                'action'=>'not_registered',
+                'display_message'=>'This account is not registered with us',
+                'data'=>[]
+            ];
+        }
 
         if ($token=$this->attemptLogin($request)) {
-            $user=Customer::getCustomer($request);
+            //$user=Customer::getCustomer($request);
             $user->notification_token=$request->notification_token;
             $user->save();
             return $this->sendLoginResponse($user, $token);

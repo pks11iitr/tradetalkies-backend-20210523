@@ -54,11 +54,19 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('delete-alert/{id}', 'MobileApps\Api\PriceAlertController@delete');
     $api->post('alert-search', 'MobileApps\Api\PriceAlertController@search');
 
+
+    $api->get('stock-details/{stock_id}', 'MobileApps\Api\StockController@details');
+    $api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@details')->name('stock.webview');
+
     $api->get('chats', 'MobileApps\Api\ChatController@chathistory');
     $api->post('start-chat/{store_id?}', 'MobileApps\Api\ChatController@startChat');
 
     $api->get('chat-messages/{id}', 'MobileApps\Api\ChatMessageController@chatDetails');
     $api->post('send-message/{id}', 'MobileApps\Api\ChatMessageController@send');
+
+
+
+
 
 
 

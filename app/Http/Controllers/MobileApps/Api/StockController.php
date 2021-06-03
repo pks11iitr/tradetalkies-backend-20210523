@@ -16,7 +16,7 @@ class StockController extends Controller
 
         $stock=Stock::findOrFail($stock_id);
 
-        $stock->update(['views'=>DB::raw('views+1')]);
+        //$stock->update(['views'=>DB::raw('views+1')]);
 
         $followings=$user->followings()->select('customers.id')->get()->map(function($element){
             return $element->id;

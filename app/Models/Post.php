@@ -13,7 +13,7 @@ class Post extends Model
 
     protected $table='posts';
 
-    protected $fillable=['parent_id', 'stock_id', 'customer_id', 'content', 'room_id'];
+    protected $fillable=['parent_id', 'customer_id', 'content', 'room_id', 'views'];
 
     public function stocks(){
         return $this->belongsToMany('App\Models\Stock', 'stock_posts', 'post_id', 'stock_id');

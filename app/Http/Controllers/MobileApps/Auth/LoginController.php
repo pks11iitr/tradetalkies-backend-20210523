@@ -168,6 +168,26 @@ class LoginController extends Controller
 
     }
 
+    public function loginCheck(Request $request){
+        $user=auth()->guard('customerapi')->user();
+        if($user)
+            return [
+                'status'=>'success',
+                'action'=>'logged_in',
+                'display_message'=>'',
+                'data'=>[]
+            ];
+
+        return [
+            'status'=>'failed',
+            'action'=>'log_out',
+            'display_message'=>'',
+            'data'=>[]
+        ];
+
+    }
+
+
     public function logout(Request $request){
         $user=$request->user;
         $user->notification_token=null;

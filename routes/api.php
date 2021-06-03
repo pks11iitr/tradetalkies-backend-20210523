@@ -24,6 +24,7 @@ $api->post('login', 'MobileApps\Auth\LoginController@login');
 $api->post('fb-login', 'MobileApps\Auth\LoginController@facebookLogin');
 $api->post('google-login', 'MobileApps\Auth\LoginController@googleLogin');
 //test comment again
+$api->get('check-login-status', 'MobileApps\Auth\LoginController@loginCheck');
 
 $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Stock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockController extends Controller
 {
@@ -14,6 +15,8 @@ class StockController extends Controller
         $user=$request->user;
 
         $stock=Stock::findOrFail($stock_id);
+
+        $stock->update(['views'=>DB::raw('views+1')]);
 
         $followings=$user->followings()->select('customers.id')->get()->map(function($element){
             return $element->id;

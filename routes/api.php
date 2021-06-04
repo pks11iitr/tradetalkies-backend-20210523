@@ -46,9 +46,6 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->post('post/create', 'MobileApps\Api\PostController@store');
     $api->post('post-stock-search', 'MobileApps\Api\PostController@searchStocks');
 
-    $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
-    $api->post('recharge','MobileApps\Api\WalletController@addMoney');
-
     $api->get('price-alerts', 'MobileApps\Api\PriceAlertController@myalerts');
     $api->post('add-alert', 'MobileApps\Api\PriceAlertController@add');
     $api->get('delete-alert/{id}', 'MobileApps\Api\PriceAlertController@delete');
@@ -57,6 +54,9 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
     $api->get('stock-details/{stock_id}', 'MobileApps\Api\StockController@details');
     $api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@details')->name('stock.webview');
+
+    $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
+    $api->post('recharge','MobileApps\Api\WalletController@addMoney');
 
     $api->get('get-notification-settings', 'MobileApps\Api\ProfileController@getNotificationSettings');
     $api->post('update-notification-settings', 'MobileApps\Api\ProfileController@setNotificationSettings');

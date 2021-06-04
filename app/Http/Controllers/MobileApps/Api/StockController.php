@@ -31,7 +31,7 @@ class StockController extends Controller
             $gallery->select('id', 'image');
         }, 'customer'=>function($customer){
             $customer->select('id', 'username', 'image');
-        }])
+        }])->withCount(['replies', 'likes', 'shared'])
             ->whereHas('stocks', function($stocks) use($stock){
                 $stocks->where('stocks.id', $stock->id);
             })
@@ -52,13 +52,20 @@ class StockController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));
 
+        Post::get_like_status($feeds,$user);
+
+        if($user->watchlist()->where('stocks.id', $stock_id)->first())
+            $added_to_watchlist=1;
+        else
+            $added_to_watchlist=0;
+
         $webview=route('stock.webview', ['stock_id'=>$stock->id]);
 
         return [
             'status'=>'success',
             'action'=>'success',
             'message'=>'',
-            'data'=>compact( 'feeds', 'stock', 'webview')
+            'data'=>compact( 'feeds', 'stock', 'webview', 'added_to_watchlist')
         ];
 
     }

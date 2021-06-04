@@ -49,7 +49,7 @@ class PostController extends Controller
             $gallery->select('id', 'image');
         }, 'customer'=>function($customer){
             $customer->select('id', 'username', 'image');
-        }])
+        }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
             ->where('customer_id', $user->id)
             //followings post
@@ -64,6 +64,8 @@ class PostController extends Controller
             })
             ->orderBy('created_at', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));
+
+        Post::get_like_status($feeds,$user);
 
         return [
             'status'=>'success',
@@ -93,7 +95,7 @@ class PostController extends Controller
             $gallery->select('id', 'image');
         }, 'customer'=>function($customer){
             $customer->select('id', 'username', 'image');
-        }])
+        }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
             ->where('customer_id', $user->id)
             //followings post
@@ -109,6 +111,8 @@ class PostController extends Controller
             ->orderBy('views', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));
+
+        Post::get_like_status($feeds,$user);
 
         return [
             'status'=>'success',
@@ -141,7 +145,7 @@ class PostController extends Controller
             $gallery->select('documents.id', 'image');
         }, 'customer'=>function($customer){
             $customer->select('customers.id', 'username', 'image');
-        }])
+        }])->withCount(['replies', 'likes', 'shared'])
             ->whereHas('stocks', function($stocks) use($watchlist){
                 $stocks->whereIn('stocks.id', $watchlist);
             })
@@ -161,6 +165,8 @@ class PostController extends Controller
             //self created posts
             ->orderBy('created_at', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));
+
+        Post::get_like_status($feeds,$user);
 
         return [
             'status'=>'success',

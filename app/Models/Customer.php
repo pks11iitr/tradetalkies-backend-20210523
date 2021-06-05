@@ -74,6 +74,36 @@ class Customer extends Authenticatable implements JWTSubject
         return Storage::url('customers/default.jpeg');
     }
 
+    public function getTwitterIdAttribute($value){
+        if($value)
+            return $value;
+        return '';
+    }
+
+    public function getAgeAttribute($value){
+        if($value)
+            return $value;
+        return '';
+    }
+
+    public function getAboutAttribute($value){
+        if($value)
+            return $value;
+        return '';
+    }
+
+    public function getTelegramIdAttribute($value){
+        if($value)
+            return $value;
+        return '';
+    }
+
+    public function getIndustryIdAttribute($value){
+        if($value)
+            return $value;
+        return '0';
+    }
+
 
     public static function getCustomer(Request $request){
         return Customer::where(userId($request), $request->user_id)

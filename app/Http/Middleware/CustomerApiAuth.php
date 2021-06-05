@@ -20,7 +20,7 @@ class CustomerApiAuth
             return [
                 'status'=>'failed',
                 'action'=>'login',
-                'message'=>'Please login to continue',
+                'display_message'=>'Please login to continue',
                 'data'=>[]
             ];
 

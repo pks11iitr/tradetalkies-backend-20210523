@@ -9,29 +9,27 @@ use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function index(){
+    public function getProfile(){
         $user=auth()->guard('customerapi')->user();
 
         if(!$user){
             return [
                 'status'=>'failed',
-                'message'=>'Please Login to Continue..',
+                'action'=>'login',
+                'display_message'=>'Please login to continue..',
+                'data'=>[]
             ];
         }
-        $balance = Wallet::balance($user->id);
-        $userdata=array(
-            'id'=>$user->id,
-            'name'=>$user->name,
-            'email'=>$user->email,
-            'mobile'=>$user->mobile,
-            'image'=>$user->image,
-            'balance'=>$balance??0,
-        );
+
+        $user=$user->only('username', 'image', 'about', 'telegram_id', 'twitter_id', 'industry_id');
+
+        $industries=config('myconfig.industry');
 
         return [
             'status'=>'success',
-            'message'=>'success',
-            'data'=>$userdata,
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('user', 'industries')
         ];
     }
     public function update(Request $request){
@@ -39,36 +37,24 @@ class ProfileController extends Controller
         if(!$user){
             return [
                 'status'=>'failed',
-                'message'=>'Please Login to Continue..',
+                'action'=>'login',
+                'display_message'=>'Please login to continue..',
+                'data'=>[]
             ];
         }
-        $request->validate([
-            'name'=>'required|string',
-            'email'=>'string'
-        ]);
 
-        if($request->email && Customer::where('email', $request->email)->where('id', '!=', $user->id)->first())
-            return [
-                'status'=>'failed',
-                'message'=>'Email already register with other user',
-            ];
+        $user->update($request->only('twitter_id', 'telegram_id', 'industry_id', 'about', 'age'));
 
-        $user->name=$request->name;
-        $user->email=$request->email;
-        if($request->image){
-            $user->saveImage($request->image, 'customers');
-        }
-        if($user->save()){
-            return [
-                'status'=>'success',
-                'message'=>'Profile Updated Successfully',
-            ];
-        }else{
-            return [
-                'status'=>'failed',
-                'message'=>'Profile Not Update',
-            ];
-        }
+        if($request->image)
+            $user->saveImage($request->image, 'customer');
+
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'Please Updated Successfully',
+            'data'=>[]
+        ];
 
     }
 
@@ -78,7 +64,7 @@ class ProfileController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'user')
         ];
 
@@ -107,7 +93,7 @@ class ProfileController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'Settings have Been Updated',
+            'display_message'=>'Settings have Been Updated',
             'data'=>[]
         ];
 

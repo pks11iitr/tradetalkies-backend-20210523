@@ -29,7 +29,7 @@ class PriceAlertController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact('alerts')
         ];
     }
@@ -52,7 +52,7 @@ class PriceAlertController extends Controller
             return [
                 'status'=>'failed',
                 'action'=>'already_added',
-                'message'=>'Stock is already in alerts',
+                'display_message'=>'Stock is already in alerts',
                 'data'=>[]
             ];
 
@@ -61,7 +61,7 @@ class PriceAlertController extends Controller
         return [
             'status'=>'success',
             'action'=>'added',
-            'message'=>'Stock has been added to alerts',
+            'display_message'=>'Stock has been added to alerts',
             'data'=>[]
         ];
 
@@ -80,7 +80,7 @@ class PriceAlertController extends Controller
         return [
             'status'=>'success',
             'action'=>'deleted',
-            'message'=>'Stock has been deleted from alerts',
+            'display_message'=>'Stock has been deleted from alerts',
             'data'=>[]
         ];
 
@@ -108,7 +108,7 @@ class PriceAlertController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact('stocks')
         ];
 

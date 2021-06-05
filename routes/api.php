@@ -28,20 +28,10 @@ $api->get('check-login-status', 'MobileApps\Auth\LoginController@loginCheck');
 
 $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
-    $api->get('logout', 'MobileApps\Auth\LoginController@logout');
+    //$api->get('logout', 'MobileApps\Auth\LoginController@logout');
 
     $api->get('home', 'MobileApps\Api\HomeController@index');
-
-    $api->get('watchlist', 'MobileApps\Auth\WatchlistController@index');
-    $api->get('watchlist/add/{stock_id}', 'MobileApps\Auth\WatchlistController@addToWatchList');
-    $api->get('watchlist/remove/{stock_id}', 'MobileApps\Auth\WatchlistController@removeFromWatchList');
-
     $api->get('feeds', 'MobileApps\Api\PostController@feeds');
-
-    $api->get('rooms', 'MobileApps\Auth\RoomController@index'); //params:type=free/paid/myrooms
-    $api->post('room/create', 'MobileApps\Auth\RoomController@add');
-    $api->get('room/members/{room_id}', 'MobileApps\Auth\RoomController@members');
-    $api->get('room/delete/{room_id}', 'MobileApps\Auth\RoomController@delete');
 
     $api->post('post/create', 'MobileApps\Api\PostController@store');
     $api->post('post-stock-search', 'MobileApps\Api\PostController@searchStocks');
@@ -51,15 +41,32 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('delete-alert/{id}', 'MobileApps\Api\PriceAlertController@delete');
     $api->post('alert-search', 'MobileApps\Api\PriceAlertController@search');
 
-
     $api->get('stock-details/{stock_id}', 'MobileApps\Api\StockController@details');
     $api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@details')->name('stock.webview');
+
+    $api->get('get-profile', 'MobileApps\Api\ProfileController@getProfile');
+    $api->get('set-profile', 'MobileApps\Api\ProfileController@setProfile');
+
+    $api->get('get-notification-settings', 'MobileApps\Api\ProfileController@getNotificationSettings');
+    $api->post('update-notification-settings', 'MobileApps\Api\ProfileController@setNotificationSettings');
+
+    $api->get('watchlist', 'MobileApps\Auth\WatchlistController@index');
+    $api->get('watchlist/add/{stock_id}', 'MobileApps\Auth\WatchlistController@addToWatchList');
+    $api->get('watchlist/remove/{stock_id}', 'MobileApps\Auth\WatchlistController@removeFromWatchList');
+
+
+
+    $api->get('rooms', 'MobileApps\Auth\RoomController@index'); //params:type=free/paid/myrooms
+    $api->post('room/create', 'MobileApps\Auth\RoomController@add');
+    $api->get('room/members/{room_id}', 'MobileApps\Auth\RoomController@members');
+    $api->get('room/delete/{room_id}', 'MobileApps\Auth\RoomController@delete');
+
+
 
     $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
     $api->post('recharge','MobileApps\Api\WalletController@addMoney');
 
-    $api->get('get-notification-settings', 'MobileApps\Api\ProfileController@getNotificationSettings');
-    $api->post('update-notification-settings', 'MobileApps\Api\ProfileController@setNotificationSettings');
+
 
     $api->get('chats', 'MobileApps\Api\ChatController@chathistory');
     $api->post('start-chat/{store_id?}', 'MobileApps\Api\ChatController@startChat');

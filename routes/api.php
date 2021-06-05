@@ -54,12 +54,10 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('watchlist/add/{stock_id}', 'MobileApps\Api\WatchlistController@addToWatchList');
     $api->get('watchlist/remove/{stock_id}', 'MobileApps\Api\WatchlistController@removeFromWatchList');
 
-
-
-    $api->get('rooms', 'MobileApps\Auth\RoomController@index'); //params:type=free/paid/myrooms
-    $api->post('room/create', 'MobileApps\Auth\RoomController@add');
-    $api->get('room/members/{room_id}', 'MobileApps\Auth\RoomController@members');
-    $api->get('room/delete/{room_id}', 'MobileApps\Auth\RoomController@delete');
+    $api->get('rooms', 'MobileApps\Api\RoomController@index'); //params:type=free/paid/myrooms
+    $api->post('room/create', 'MobileApps\Api\RoomController@add');
+    $api->get('room/members/{room_id}', 'MobileApps\Api\RoomController@members');
+    $api->get('room/delete/{room_id}', 'MobileApps\Api\RoomController@delete');
 
 
 

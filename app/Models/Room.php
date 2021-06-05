@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DocumentUploadTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class Room extends Model
 {
@@ -21,7 +22,7 @@ class Room extends Model
 
 
     public function members(){
-        return $this->hasMany('App\Models\Customer', 'room_members', 'room_id', 'customer_id');
+        return $this->belongsToMany('App\Models\Customer', 'room_members', 'room_id', 'customer_id');
     }
 
     public static function userFreeRooms(Request $request){

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Room;
 use Illuminate\Http\Request;
 
@@ -39,19 +40,19 @@ class RoomController extends Controller
         else
             $room=new Room($request->only('name', 'type'));
 
-        $request->user->rooms()->save($room);
+        $request->user->myrooms()->save($room);
 
         $room->saveImage($request->image, 'rooms');
 
         $room->members()->sync([$request->user->id]);
 
-        $chats=[];
+        $posts=[];
 
         return [
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'Room Has Been Created',
-            'data'=>compact( 'chats')
+            'data'=>compact( 'posts')
         ];
 
     }
@@ -59,9 +60,12 @@ class RoomController extends Controller
     public function members(Request $request, $room_id){
 
         $user=$request->user;
-        $room=Room::findOrFail($room_id);
+        $room=Room::withCount('members')->findOrFail($room_id);
 
-        $members=$room->members()->paginate(env('PAGE_RESULT_COUNT'));
+        $members=Customer::whereHas('rooms', function($rooms) use($room){
+            $rooms->where('rooms.id', $room->id);
+        })->select('customers.id', 'username', 'customers.image')
+            ->paginate(env('PAGE_RESULT_COUNT'));
 
         $show_delete=0;
         if($room->created_by==$user->id)
@@ -72,7 +76,7 @@ class RoomController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'display_message'=>'Room Has Been Created',
+            'display_message'=>'',
             'data'=>compact( 'room', 'members', 'show_delete')
         ];
 

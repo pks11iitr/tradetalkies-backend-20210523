@@ -35,6 +35,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
     $api->post('post/create', 'MobileApps\Api\PostController@store');
     $api->post('post-stock-search', 'MobileApps\Api\PostController@searchStocks');
+    $api->get('post/like/{post_id}', 'MobileApps\Api\PostController@likePost');
 
     $api->get('price-alerts', 'MobileApps\Api\PriceAlertController@myalerts');
     $api->post('add-alert', 'MobileApps\Api\PriceAlertController@add');

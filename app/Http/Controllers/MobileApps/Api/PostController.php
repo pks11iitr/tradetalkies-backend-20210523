@@ -237,6 +237,28 @@ class PostController extends Controller
         ];
     }
 
+    public function likePost(Request $request, $post_id){
+        $user=$request->user;
+
+        $post=Post::with(['likes'=>function($likes) use($user){
+                $likes->where('customers.id', $user->id);
+            }])->findOrFail($post_id);
+
+        if(!count($post->likes)){
+            $post->likes()->syncWithoutDetaching($user->id);
+        }else{
+            $post->likes()->detach($user->id);
+        }
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>[]
+        ];
+
+    }
+
 //SQL: select count(*) as aggregate from `posts` where exists (select * from `posts` as `laravel_reserved_0` inner join `post_id` on `laravel_reserved_0`.`id` = `post_id`.`post_id` where `posts`.`id` = `post_id`.`stock_id` and `stocks`.`id` in (1, 2)) and (`customer_id` = 1 or (`room_id` is null and `customer_id` = 0) or (`room_id` is not null and `room_id` = 0)))",
 
 }

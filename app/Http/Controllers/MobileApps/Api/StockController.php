@@ -64,7 +64,7 @@ class StockController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'feeds', 'stock', 'webview', 'added_to_watchlist')
         ];
 

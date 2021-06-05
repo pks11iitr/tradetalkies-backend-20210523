@@ -23,7 +23,7 @@ class PostController extends Controller
         return [
             'status'=>'failed',
             'action'=>'invalid_type',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>[]
         ];
 
@@ -70,7 +70,7 @@ class PostController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'feeds')
         ];
     }
@@ -117,7 +117,7 @@ class PostController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'feeds')
         ];
     }
@@ -171,7 +171,7 @@ class PostController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'feeds')
         ];
     }
@@ -181,7 +181,7 @@ class PostController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact( 'feeds')
         ];
     }
@@ -232,7 +232,7 @@ class PostController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'message'=>'',
+            'display_message'=>'',
             'data'=>compact('stocks')
         ];
     }

@@ -32,7 +32,7 @@ class ProfileController extends Controller
             'data'=>compact('user', 'industries')
         ];
     }
-    public function update(Request $request){
+    public function setProfile(Request $request){
         $user=auth()->guard('customerapi')->user();
         if(!$user){
             return [

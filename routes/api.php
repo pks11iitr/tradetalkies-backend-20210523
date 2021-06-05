@@ -45,7 +45,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@details')->name('stock.webview');
 
     $api->get('get-profile', 'MobileApps\Api\ProfileController@getProfile');
-    $api->get('set-profile', 'MobileApps\Api\ProfileController@setProfile');
+    $api->post('set-profile', 'MobileApps\Api\ProfileController@setProfile');
 
     $api->get('get-notification-settings', 'MobileApps\Api\ProfileController@getNotificationSettings');
     $api->post('update-notification-settings', 'MobileApps\Api\ProfileController@setNotificationSettings');

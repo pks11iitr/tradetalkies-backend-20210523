@@ -50,9 +50,9 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('get-notification-settings', 'MobileApps\Api\ProfileController@getNotificationSettings');
     $api->post('update-notification-settings', 'MobileApps\Api\ProfileController@setNotificationSettings');
 
-    $api->get('watchlist', 'MobileApps\Auth\WatchlistController@index');
-    $api->get('watchlist/add/{stock_id}', 'MobileApps\Auth\WatchlistController@addToWatchList');
-    $api->get('watchlist/remove/{stock_id}', 'MobileApps\Auth\WatchlistController@removeFromWatchList');
+    $api->get('watchlist', 'MobileApps\Api\WatchlistController@index');
+    $api->get('watchlist/add/{stock_id}', 'MobileApps\Api\WatchlistController@addToWatchList');
+    $api->get('watchlist/remove/{stock_id}', 'MobileApps\Api\WatchlistController@removeFromWatchList');
 
 
 

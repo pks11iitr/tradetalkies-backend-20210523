@@ -72,6 +72,6 @@ class StockController extends Controller
 
 
     public function webview(Request $request, $stock_id){
-        echo 'Display Char here';
+        return view('stock-chart');
     }
 }

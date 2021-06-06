@@ -43,7 +43,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->post('alert-search', 'MobileApps\Api\PriceAlertController@search');
 
     $api->get('stock-details/{stock_id}', 'MobileApps\Api\StockController@details');
-    $api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@webview')->name('stock.webview');
+
 
     $api->get('get-profile', 'MobileApps\Api\ProfileController@getProfile');
     $api->post('set-profile', 'MobileApps\Api\ProfileController@setProfile');
@@ -74,6 +74,8 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->post('send-message/{id}', 'MobileApps\Api\ChatMessageController@send');
 
 });
+
+$api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@webview')->name('stock.webview');
 
 
 $api->post('verify-payment', 'MobileApps\Api\PaymentController@verifyPayment');

@@ -45,9 +45,7 @@ class PostController extends Controller
         })->toArray();
 
 
-        $feeds=Post::with(['gallery'=>function($gallery){
-            $gallery->select('id', 'image');
-        }, 'customer'=>function($customer){
+        $feeds=Post::with(['gallery', 'customer'=>function($customer){
             $customer->select('id', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
@@ -94,9 +92,7 @@ class PostController extends Controller
         })->toArray();
 
 
-        $feeds=Post::with(['gallery'=>function($gallery){
-            $gallery->select('id', 'image');
-        }, 'customer'=>function($customer){
+        $feeds=Post::with(['gallery', 'customer'=>function($customer){
             $customer->select('id', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
@@ -117,8 +113,6 @@ class PostController extends Controller
         $feeds=Post::applyDateFilter($feeds,$request->date_type, $request->date_start,$request->date_end);
 
         $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
-
-        Post::get_like_status($feeds,$user);
 
         Post::get_like_status($feeds,$user);
 
@@ -149,11 +143,10 @@ class PostController extends Controller
 
         //die;
 
-        $feeds=Post::with(['gallery'=>function($gallery){
-            $gallery->select('documents.id', 'image');
-        }, 'customer'=>function($customer){
+        $feeds=Post::with(['gallery', 'customer'=>function($customer){
             $customer->select('customers.id', 'username', 'image');
-        }])->withCount(['replies', 'likes', 'shared'])
+        }])
+            ->withCount(['replies', 'likes', 'shared'])
             ->whereHas('stocks', function($stocks) use($watchlist){
                 $stocks->whereIn('stocks.id', $watchlist);
             })

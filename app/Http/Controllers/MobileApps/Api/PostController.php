@@ -62,8 +62,11 @@ class PostController extends Controller
                 $query->whereNotNull('room_id')
                     ->where('room_id', $rooms);
             })
-            ->orderBy('created_at', 'desc')
-            ->paginate(env('PAGE_RESULT_COUNT'));
+            ->orderBy('created_at', 'desc');
+
+        $feeds=Post::applyDateFilter($feeds,$request->date_type, $request->date_start,$request->date_end);
+
+        $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
 
         Post::get_like_status($feeds,$user);
 
@@ -109,8 +112,13 @@ class PostController extends Controller
                     ->where('room_id', $rooms);
             })
             ->orderBy('views', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(env('PAGE_RESULT_COUNT'));
+            ->orderBy('created_at', 'desc');
+
+        $feeds=Post::applyDateFilter($feeds,$request->date_type, $request->date_start,$request->date_end);
+
+        $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
+
+        Post::get_like_status($feeds,$user);
 
         Post::get_like_status($feeds,$user);
 
@@ -163,8 +171,13 @@ class PostController extends Controller
                     });
             })
             //self created posts
-            ->orderBy('created_at', 'desc')
-            ->paginate(env('PAGE_RESULT_COUNT'));
+            ->orderBy('created_at', 'desc');
+
+        $feeds=Post::applyDateFilter($feeds,$request->date_type, $request->date_start,$request->date_end);
+
+        $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
+
+        Post::get_like_status($feeds,$user);
 
         Post::get_like_status($feeds,$user);
 

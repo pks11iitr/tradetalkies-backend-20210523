@@ -57,10 +57,25 @@ class Post extends Model
                 return $element->id;
             })->toArray();
 
-        $feeds=$feeds->map(function($element)use($fids){
-            $element->is_liked=(in_array($element->id, $fids)?1:0);
-            return $element;
-        });
+        foreach($feeds as $f){
+            $f->is_liked=(in_array($f->id, $fids)?1:0);
+        }
+//        $feeds=$feeds->map(function($element)use($fids){
+//
+//            return $element;
+//        });
+    }
+
+
+    public static function applyDateFilter($feeds,$type,$date_start,$date_end){
+
+        switch($type){
+
+            case 'hourly': return $feeds->where('posts.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 hour')));
+            case 'weekly':return $feeds->where('posts.created_at', '>=', date('Y-m-d H:i:s', strtotime('-7 days')));
+            case 'custom':return $feeds->where('posts.created_at', '>=', $date_start)->where('posts.created_at', $date_end);
+            default:return $feeds;
+        }
     }
 
 }

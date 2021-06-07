@@ -172,8 +172,6 @@ class PostController extends Controller
 
         Post::get_like_status($feeds,$user);
 
-        Post::get_like_status($feeds,$user);
-
         return [
             'status'=>'success',
             'action'=>'success',

@@ -36,6 +36,8 @@ class PostController extends Controller
 //            return $element->id;
 //        })->toArray();
 
+
+
         $followings=$user->followings()->select('customers.id')->get()->map(function($element){
             return $element->id;
         })->toArray();
@@ -68,11 +70,26 @@ class PostController extends Controller
 
         Post::get_like_status($feeds,$user);
 
+        $mentions=[
+            [
+                'id'=>'@#1#',
+                'name'=>'Pankaj Sengar'
+            ],
+            [
+                'id'=>'@#2#',
+                'name'=>'Bharat Arora'
+            ],
+            [
+                'id'=>'@#3#',
+                'name'=>'Random'
+            ],
+        ];
+
         return [
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact( 'feeds')
+            'data'=>compact( 'feeds', 'mentions')
         ];
     }
 
@@ -116,11 +133,26 @@ class PostController extends Controller
 
         Post::get_like_status($feeds,$user);
 
+        $mentions=[
+            [
+                'id'=>'@#1#',
+                'name'=>'Pankaj Sengar'
+            ],
+            [
+                'id'=>'@#2#',
+                'name'=>'Bharat Arora'
+            ],
+            [
+                'id'=>'@#3#',
+                'name'=>'Random'
+            ],
+        ];
+
         return [
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact( 'feeds')
+            'data'=>compact( 'feeds', 'mentions')
         ];
     }
 
@@ -172,11 +204,26 @@ class PostController extends Controller
 
         Post::get_like_status($feeds,$user);
 
+        $mentions=[
+            [
+                'id'=>'@#1#',
+                'name'=>'Pankaj Sengar'
+            ],
+            [
+                'id'=>'@#2#',
+                'name'=>'Bharat Arora'
+            ],
+            [
+                'id'=>'@#3#',
+                'name'=>'Random'
+            ],
+        ];
+
         return [
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact( 'feeds')
+            'data'=>compact( 'feeds', 'mentions')
         ];
     }
 
@@ -212,8 +259,11 @@ class PostController extends Controller
         if($request->stock_ids)
             $post->stocks()->sync($request->stock_ids);
 
-        foreach($request->images as $image)
-            $post->saveDocument($image, 'posts');
+        if($request->images){
+            foreach($request->images as $image)
+                $post->saveDocument($image, 'posts');
+        }
+
 
         return [
             'status'=>'success',

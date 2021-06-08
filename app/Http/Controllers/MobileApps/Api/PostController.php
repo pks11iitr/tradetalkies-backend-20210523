@@ -199,7 +199,7 @@ class PostController extends Controller
     public function store(Request $request){
         $request->validate([
             'content'=>'required|max:1000',
-            'images'=>'required|array',
+            'images'=>'array',
             'stock_ids'=>'array',
             'room_id'=>'integer'
         ]);

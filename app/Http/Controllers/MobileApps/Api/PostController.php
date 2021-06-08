@@ -62,7 +62,7 @@ class PostController extends Controller
             })
             ->orderBy('created_at', 'desc');
 
-        $feeds=Post::applyDateFilter($feeds,$request->date_type, $request->date_start,$request->date_end);
+        $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 
         $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
 
@@ -110,7 +110,7 @@ class PostController extends Controller
             ->orderBy('views', 'desc')
             ->orderBy('created_at', 'desc');
 
-        $feeds=Post::applyDateFilter($feeds,$request->date_type, $request->date_start,$request->date_end);
+        $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 
         $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
 
@@ -166,7 +166,7 @@ class PostController extends Controller
             //self created posts
             ->orderBy('created_at', 'desc');
 
-        $feeds=Post::applyDateFilter($feeds,$request->date_type, $request->date_start,$request->date_end);
+        $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 
         $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
 

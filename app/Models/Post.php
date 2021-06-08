@@ -67,11 +67,14 @@ class Post extends Model
     }
 
 
-    public static function applyDateFilter($feeds,$type,$date_start,$date_end){
+    public static function applyDateSearchFilter($feeds,$type,$date_start,$date_end,$search_term){
+
+        if($search_term)
+            $feeds=$feeds->where('content', 'like', '%'.$search_term.'%');
 
         switch($type){
-
-            case 'hourly': return $feeds->where('posts.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 hour')));
+            case 'hourly':
+                return $feeds->where('posts.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 hour')));
             case 'weekly':return $feeds->where('posts.created_at', '>=', date('Y-m-d H:i:s', strtotime('-7 days')));
             case 'custom':return $feeds->where('posts.created_at', '>=', $date_start)->where('posts.created_at', $date_end);
             default:return $feeds;

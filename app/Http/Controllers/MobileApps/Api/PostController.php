@@ -51,16 +51,18 @@ class PostController extends Controller
             $customer->select('id', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
-            ->where('customer_id', $user->id)
-            //followings post
-            ->orWhere(function($query) use($followings){
-                $query->whereNull('room_id')
-                    ->where('customer_id', $followings);
-            })
-            //room posts
-            ->orWhere(function($query) use($rooms){
-                $query->whereNotNull('room_id')
-                    ->where('room_id', $rooms);
+            ->where(function($query) use($user,$followings,$rooms){
+                $query->where('customer_id', $user->id)
+                    //followings post
+                    ->orWhere(function($query) use($followings){
+                        $query->whereNull('room_id')
+                            ->whereIn('customer_id', $followings);
+                    })
+                    //room posts
+                    ->orWhere(function($query) use($rooms){
+                        $query->whereNotNull('room_id')
+                            ->whereIn('room_id', $rooms);
+                    });
             })
             ->orderBy('created_at', 'desc');
 

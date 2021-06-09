@@ -61,11 +61,26 @@ class StockController extends Controller
 
         $webview=route('stock.webview', ['stock_id'=>$stock->id]);
 
+        $mentions=[
+            [
+                'id'=>'@#1#',
+                'name'=>'Pankaj Sengar'
+            ],
+            [
+                'id'=>'@#2#',
+                'name'=>'Bharat Arora'
+            ],
+            [
+                'id'=>'@#3#',
+                'name'=>'Random'
+            ],
+        ];
+
         return [
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact( 'feeds', 'stock', 'webview', 'added_to_watchlist')
+            'data'=>compact( 'feeds', 'stock', 'webview', 'added_to_watchlist', 'mentions')
         ];
 
     }

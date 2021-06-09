@@ -51,6 +51,7 @@ class PostController extends Controller
             $customer->select('id', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
+            ->where('parent_id', null)
             ->where(function($query) use($user,$followings,$rooms){
                 $query->where('customer_id', $user->id)
                     //followings post
@@ -115,6 +116,7 @@ class PostController extends Controller
             $customer->select('id', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
+            ->where('parent_id', null)
             ->where(function($query) use($user,$followings,$rooms){
                 $query->where('customer_id', $user->id)
                     //followings post
@@ -183,6 +185,7 @@ class PostController extends Controller
             $customer->select('customers.id', 'username', 'image');
         }])
             ->withCount(['replies', 'likes', 'shared'])
+            ->where('parent_id', null)
             ->whereHas('stocks', function($stocks) use($watchlist){
                 $stocks->whereIn('stocks.id', $watchlist);
             })
@@ -243,6 +246,56 @@ class PostController extends Controller
 
 
     public function postDetails(Request $request, $post_id){
+
+        $user=$request->user;
+
+        $post=Post::with(['gallery', 'customer'=>function($customer){
+            $customer->select('customers.id', 'username', 'image');
+        }])->find($post_id);
+
+        $post_ids=[$post->id];
+
+        $replies=Post::with(['gallery', 'customer'=>function($customer){
+            $customer->select('customers.id', 'username', 'image');
+        }, 'replies'=>function($replies){
+            $replies->with(['gallery','customer'=>function($customer){
+                $customer->select('customers.id', 'username', 'image');
+            }]);
+        }])
+            ->where('parent_id', $post->id)
+            ->orderBy('id', 'desc')
+            ->paginate(env('PAGE_RESULT_COUNT'));
+
+        foreach($replies as $reply){
+            $post_ids[]=$reply->id;
+            foreach($reply->replies as $rreply){
+                $post_ids[]=$rreply->id;
+            }
+        }
+
+        $user_likes=$user->likes()
+            ->whereIn('posts.id', $post_ids)
+            ->get()->map(function($element){
+               return $element->id;
+            })->toArray();
+
+        $post->is_liked=in_array($post->id, $user_likes)?1:0;
+
+        foreach($replies as $reply){
+            $reply->is_liked = in_array($reply->id, $user_likes)?1:0;
+            foreach($reply->replies as $rreply){
+                $rreply->is_liked = in_array($rreply->id, $user_likes)?1:0;
+            }
+        }
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('post','replies')
+        ];
+
+
 
     }
 

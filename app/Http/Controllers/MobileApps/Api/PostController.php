@@ -251,7 +251,8 @@ class PostController extends Controller
 
         $post=Post::with(['gallery', 'customer'=>function($customer){
             $customer->select('customers.id', 'username', 'image');
-        }])->find($post_id);
+        }])->withCount(['replies', 'likes', 'shared'])
+            ->find($post_id);
 
         $post_ids=[$post->id];
 
@@ -260,8 +261,9 @@ class PostController extends Controller
         }, 'replies'=>function($replies){
             $replies->with(['gallery','customer'=>function($customer){
                 $customer->select('customers.id', 'username', 'image');
-            }]);
+            }])->withCount(['likes','replies']);
         }])
+            ->withCount(['replies', 'likes'])
             ->where('parent_id', $post->id)
             ->orderBy('id', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));

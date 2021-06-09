@@ -76,7 +76,8 @@ class Post extends Model
             case 'hourly':
                 return $feeds->where('posts.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 hour')));
             case 'weekly':return $feeds->where('posts.created_at', '>=', date('Y-m-d H:i:s', strtotime('-7 days')));
-            case 'custom':return $feeds->where('posts.created_at', '>=', $date_start)->where('posts.created_at', $date_end);
+            case 'custom':return $feeds->where('posts.created_at', '>=', $date_start)
+                ->where('posts.created_at', '<=', $date_end);
             default:return $feeds;
         }
     }

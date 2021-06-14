@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Post;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 
@@ -98,5 +99,66 @@ class ProfileController extends Controller
         ];
 
     }
+
+
+    public function details(Request $request, $id=null){
+        $user=$request->user;
+        if($id)
+            $profile=Customer::withCount(['posts', 'followers', 'following'])->findOrFail($id);
+        else
+            $profile=Customer::withCount(['posts', 'followers', 'following'])->findOrFail($user->id);
+        if($profile->id!=$user->id){
+            $profile->display_follow=1;
+            $profile->display_message=1;
+            if($user->followings()->where('customers.id', $profile->id)->first())
+                $profile->is_followed=1;
+            else
+                $profile->is_followed=0;
+
+            $posts=Post::with(['gallery', 'customer'=>function($customer){
+                $customer->select('customers.id', 'username', 'image');
+            }])->withCount(['replies', 'likes', 'shared'])
+                ->where('posts.customer_id', $profile->id)
+                ->orderBy('posts.created_at', 'desc');;
+
+            $posts=$posts->paginate(env('PAGE_RESULT_COUNT'));
+
+            Post::get_like_status($posts,$user);
+
+        }else{
+            $profile->display_follow=0;
+            $profile->display_message=0;
+            $profile->is_followed=0;
+
+            $posts=Post::with(['gallery', 'customer'=>function($customer){
+                $customer->select('customers.id', 'username', 'image');
+            }])->withCount(['replies', 'likes', 'shared'])
+                ->where('posts.customer_id', $profile->id)
+                ->orderBy('posts.created_at', 'desc');;
+
+            $posts=$posts->paginate(env('PAGE_RESULT_COUNT'));
+
+            Post::get_like_status($posts,$user);
+        }
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('profile', 'posts')
+        ];
+
+
+    }
+
+    public function reportblock(Request $request, $id){
+
+    }
+
+    public function message(Request $request, $id){
+
+    }
+
+
 
 }

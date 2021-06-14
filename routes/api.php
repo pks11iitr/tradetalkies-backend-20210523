@@ -38,6 +38,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('post/like/{post_id}', 'MobileApps\Api\PostController@likePost');
     $api->get('post/details/{post_id}', 'MobileApps\Api\PostController@postDetails');
     $api->post('post/reply', 'MobileApps\Api\ReplyController@store');
+    $api->get('reply/details/{post_id}', 'MobileApps\Api\ReplyController@replyDetails');
 
     $api->get('price-alerts', 'MobileApps\Api\PriceAlertController@myalerts');
     $api->post('add-alert', 'MobileApps\Api\PriceAlertController@add');
@@ -49,6 +50,13 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
     $api->get('get-profile', 'MobileApps\Api\ProfileController@getProfile');
     $api->post('set-profile', 'MobileApps\Api\ProfileController@setProfile');
+
+    $api->get('profile/details/{id?}', 'MobileApps\Api\ProfileController@details');
+
+    $api->get('follow/{id}', 'MobileApps\Api\FollowController@follow');
+    $api->get('followers/{id}', 'MobileApps\Api\FollowController@followers');
+    $api->get('followings/{id}', 'MobileApps\Api\FollowController@followings');
+
 
     $api->get('get-notification-settings', 'MobileApps\Api\ProfileController@getNotificationSettings');
     $api->post('update-notification-settings', 'MobileApps\Api\ProfileController@setNotificationSettings');

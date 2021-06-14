@@ -43,4 +43,50 @@ class ReplyController extends Controller
         ];
 
     }
+
+
+    public function replyDetails(Request $request, $post_id){
+        $user=$request->user;
+
+        $post=Post::with(['gallery', 'customer'=>function($customer){
+            $customer->select('customers.id', 'username', 'image');
+        }])->withCount(['replies', 'likes', 'shared'])
+            ->find($post_id);
+
+        $post_ids=[$post->id];
+
+        $replies=Post::with(['gallery', 'customer'=>function($customer){
+            $customer->select('customers.id', 'username', 'image');
+        }])
+            ->withCount(['replies', 'likes'])
+            ->where('parent_id', $post->id)
+            ->orderBy('id', 'desc')
+            ->paginate(env('PAGE_RESULT_COUNT'));
+
+        foreach($replies as $reply){
+            $post_ids[]=$reply->id;
+        }
+
+        $user_likes=$user->likes()
+            ->whereIn('posts.id', $post_ids)
+            ->get()->map(function($element){
+                return $element->id;
+            })->toArray();
+
+        $post->is_liked=in_array($reply->id, $user_likes)?1:0;
+
+        foreach($replies as $reply){
+            $reply->is_liked = in_array($reply->id, $user_likes)?1:0;
+            foreach($reply->replies as $rreply){
+                $rreply->is_liked = in_array($rreply->id, $user_likes)?1:0;
+            }
+        }
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('post','replies')
+        ];
+    }
 }

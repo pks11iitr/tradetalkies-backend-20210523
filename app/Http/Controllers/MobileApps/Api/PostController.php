@@ -36,8 +36,6 @@ class PostController extends Controller
 //            return $element->id;
 //        })->toArray();
 
-
-
         $followings=$user->followings()->select('customers.id')->get()->map(function($element){
             return $element->id;
         })->toArray();
@@ -47,7 +45,7 @@ class PostController extends Controller
         })->toArray();
 
 
-        $feeds=Post::with(['gallery', 'customer'=>function($customer){
+        $feeds=Post::with(['gallery', 'mentions', 'customer'=>function($customer){
             $customer->select('id', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
@@ -71,22 +69,24 @@ class PostController extends Controller
 
         $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
 
+        $mentions=Post::getMentionsList($feeds);
+
         Post::get_like_status($feeds,$user);
 
-        $mentions=[
-            [
-                'id'=>'@#1#',
-                'name'=>'Pankaj Sengar'
-            ],
-            [
-                'id'=>'@#2#',
-                'name'=>'Bharat Arora'
-            ],
-            [
-                'id'=>'@#3#',
-                'name'=>'Random'
-            ],
-        ];
+//        $mentions=[
+//            [
+//                'id'=>'@#1#',
+//                'name'=>'Pankaj Sengar'
+//            ],
+//            [
+//                'id'=>'@#2#',
+//                'name'=>'Bharat Arora'
+//            ],
+//            [
+//                'id'=>'@#3#',
+//                'name'=>'Random'
+//            ],
+//        ];
 
         return [
             'status'=>'success',
@@ -139,20 +139,22 @@ class PostController extends Controller
 
         Post::get_like_status($feeds,$user);
 
-        $mentions=[
-            [
-                'id'=>'@#1#',
-                'name'=>'Pankaj Sengar'
-            ],
-            [
-                'id'=>'@#2#',
-                'name'=>'Bharat Arora'
-            ],
-            [
-                'id'=>'@#3#',
-                'name'=>'Random'
-            ],
-        ];
+//        $mentions=[
+//            [
+//                'id'=>'@#1#',
+//                'name'=>'Pankaj Sengar'
+//            ],
+//            [
+//                'id'=>'@#2#',
+//                'name'=>'Bharat Arora'
+//            ],
+//            [
+//                'id'=>'@#3#',
+//                'name'=>'Random'
+//            ],
+//        ];
+
+        $mentions=Post::getMentionsList($feeds);
 
         return [
             'status'=>'success',
@@ -211,20 +213,22 @@ class PostController extends Controller
 
         Post::get_like_status($feeds,$user);
 
-        $mentions=[
-            [
-                'id'=>'@#1#',
-                'name'=>'Pankaj Sengar'
-            ],
-            [
-                'id'=>'@#2#',
-                'name'=>'Bharat Arora'
-            ],
-            [
-                'id'=>'@#3#',
-                'name'=>'Random'
-            ],
-        ];
+        $mentions=Post::getMentionsList($feeds);
+
+//        $mentions=[
+//            [
+//                'id'=>'@#1#',
+//                'name'=>'Pankaj Sengar'
+//            ],
+//            [
+//                'id'=>'@#2#',
+//                'name'=>'Bharat Arora'
+//            ],
+//            [
+//                'id'=>'@#3#',
+//                'name'=>'Random'
+//            ],
+//        ];
 
         return [
             'status'=>'success',
@@ -307,7 +311,8 @@ class PostController extends Controller
             'content'=>'required|max:1000',
             'images'=>'array',
             'stock_ids'=>'array',
-            'room_id'=>'integer'
+            'room_id'=>'integer',
+            'mentions'=>'array'
         ]);
 
         $user=$request->user;
@@ -323,6 +328,8 @@ class PostController extends Controller
                 $post->saveDocument($image, 'posts');
         }
 
+        if(!empty($request->mentions))
+            $post->mentions()->sync($request->mentions);
 
         return [
             'status'=>'success',

@@ -44,6 +44,10 @@ class Post extends Model
         return $this->hasMany('App\Models\Post', 'shared_post_id');
     }
 
+    public function mentions(){
+        return $this->belongsToMany('App\Models\Customer', 'post_mentions', 'post_id', 'customer_id');
+    }
+
     public static function get_like_status(&$feeds, $user){
         $fids=$feeds->map(function($element){
             return $element->id;
@@ -80,6 +84,28 @@ class Post extends Model
                 ->where('posts.created_at', '<=', $date_end);
             default:return $feeds;
         }
+    }
+
+    public static function getMentionsList($feeds){
+        $mentions=[];
+        $mentions_ids=[];
+        foreach ($feeds as $feed)
+        {
+            $f_mentions=$feed->mentions;
+            foreach($f_mentions as $m){
+                if(!in_array($m->id, $mentions_ids)){
+                    $mentions_ids[]=$m->id;
+                    $mentions=[
+                        'id'=>'@#'.$m->id.'#',
+                        'name'=>$m->name
+                    ];
+                }
+
+            }
+        }
+
+        return $mentions;
+
     }
 
 }

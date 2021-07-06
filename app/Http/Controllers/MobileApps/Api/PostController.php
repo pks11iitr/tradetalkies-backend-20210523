@@ -333,22 +333,6 @@ class PostController extends Controller
 
     }
 
-    public function searchStocks(Request $request){
-
-        $stocks=Stock::where(function($query)use($request){
-            $query->where('name', 'like', '%'.$request->search.'%')
-                ->orWhere('code', 'like', '%'.$request->search.'%');
-        });
-
-        $stocks = $stocks->take(5)->get();
-
-        return [
-            'status'=>'success',
-            'action'=>'success',
-            'display_message'=>'',
-            'data'=>compact('stocks')
-        ];
-    }
 
     public function likePost(Request $request, $post_id){
         $user=$request->user;

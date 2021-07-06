@@ -34,11 +34,12 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('feeds', 'MobileApps\Api\PostController@feeds');
 
     $api->post('post/create', 'MobileApps\Api\PostController@store');
-    $api->post('post-stock-search', 'MobileApps\Api\PostController@searchStocks');
+    $api->post('post-stock-search', 'MobileApps\Api\SearchController@searchStocks');
     $api->get('post/like/{post_id}', 'MobileApps\Api\PostController@likePost');
     $api->get('post/details/{post_id}', 'MobileApps\Api\PostController@postDetails');
     $api->post('post/reply', 'MobileApps\Api\ReplyController@store');
     $api->get('reply/details/{post_id}', 'MobileApps\Api\ReplyController@replyDetails');
+    $api->post('mentions-list', 'MobileApps\Api\SearchController@mentionsList');
 
     $api->get('price-alerts', 'MobileApps\Api\PriceAlertController@myalerts');
     $api->post('add-alert', 'MobileApps\Api\PriceAlertController@add');

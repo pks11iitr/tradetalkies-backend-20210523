@@ -32,11 +32,39 @@ class FollowController extends Controller
     }
 
     public function followers(Request $request, $id){
+        $user=$request->user;
+        $profile=Customer::findOrFail($id);
 
+        $followers=Customer::join('followers', 'customers.id', '=', 'followers.follower_id')
+            ->select('id', 'name', 'image', 'username')
+            ->orderBy('customers.id', 'desc')
+            ->where('followers.customer_id', $profile->id)
+            ->paginate(env('PAGE_RESULT_COUNT'));
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('followers')
+        ];
     }
 
     public function followings(Request $request, $id){
+        $user=$request->user;
+        $profile=Customer::findOrFail($id);
 
+        $followings=Customer::join('followers', 'customers.id', '=', 'followers.customer_id')
+            ->select('id', 'name', 'image', 'username')
+            ->orderBy('customers.id', 'desc')
+            ->where('followers.follower_id', $profile->id)
+            ->paginate(env('PAGE_RESULT_COUNT'));
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('followings')
+        ];
     }
 
 }

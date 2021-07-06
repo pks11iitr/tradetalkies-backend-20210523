@@ -22,7 +22,7 @@ class ProfileController extends Controller
             ];
         }
 
-        $user=$user->only('username', 'image', 'about', 'telegram_id', 'twitter_id', 'industry_id');
+        $user=$user->only('name', 'username', 'image', 'about', 'telegram_id', 'twitter_id', 'industry_id');
 
         $industries=config('myconfig.industry');
 
@@ -44,7 +44,7 @@ class ProfileController extends Controller
             ];
         }
 
-        $user->update($request->only('twitter_id', 'telegram_id', 'industry_id', 'about', 'age'));
+        $user->update($request->only('name', 'twitter_id', 'telegram_id', 'industry_id', 'about', 'age'));
 
         if($request->image)
             $user->saveImage($request->image, 'customer');
@@ -116,7 +116,7 @@ class ProfileController extends Controller
                 $profile->is_followed=0;
 
             $posts=Post::with(['gallery', 'customer'=>function($customer){
-                $customer->select('customers.id', 'username', 'image');
+                $customer->select('customers.id', 'name', 'username', 'image');
             }])->withCount(['replies', 'likes', 'shared'])
                 ->where('posts.customer_id', $profile->id)
                 ->orderBy('posts.created_at', 'desc');;

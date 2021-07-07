@@ -104,9 +104,9 @@ class ProfileController extends Controller
     public function details(Request $request, $id=null){
         $user=$request->user;
         if($id)
-            $profile=Customer::withCount(['posts', 'followers', 'following'])->findOrFail($id);
+            $profile=Customer::withCount(['posts', 'followers', 'followings'])->findOrFail($id);
         else
-            $profile=Customer::withCount(['posts', 'followers', 'following'])->findOrFail($user->id);
+            $profile=Customer::withCount(['posts', 'followers', 'followings'])->findOrFail($user->id);
         if($profile->id!=$user->id){
             $profile->display_follow=1;
             $profile->display_message=1;

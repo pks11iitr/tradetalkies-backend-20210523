@@ -95,7 +95,7 @@ class Post extends Model
             foreach($f_mentions as $m){
                 if(!in_array($m->id, $mentions_ids)){
                     $mentions_ids[]=$m->id;
-                    $mentions=[
+                    $mentions[]=[
                         'id'=>'@#'.$m->id.'#',
                         'name'=>$m->name
                     ];

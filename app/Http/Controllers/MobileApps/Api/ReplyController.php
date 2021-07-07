@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class ReplyController extends Controller
 {
@@ -13,6 +14,7 @@ class ReplyController extends Controller
         $request->validate([
            'parent_id'=>'required|integer',
            'content'=>'required|max:500',
+            'mentions'=>'array'
         ]);
 
         $user=$request->user;
@@ -35,6 +37,9 @@ class ReplyController extends Controller
             $post->saveDocument($request->image, 'posts');
         }
 
+        if(!empty($request->mentions))
+            $post->mentions()->sync($request->mentions);
+
         return [
             'status'=>'success',
             'action'=>'success',
@@ -50,6 +55,8 @@ class ReplyController extends Controller
 
         $post=Post::with(['gallery', 'customer'=>function($customer){
             $customer->select('customers.id', 'username', 'image');
+        }, 'mentions'=>function($customer){
+            $customer->select('customers.id', 'name', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             ->find($post_id);
 
@@ -57,11 +64,15 @@ class ReplyController extends Controller
 
         $replies=Post::with(['gallery', 'customer'=>function($customer){
             $customer->select('customers.id', 'username', 'image');
+        },'mentions'=>function($customer){
+            $customer->select('customers.id', 'name', 'username', 'image');
         }])
             ->withCount(['replies', 'likes'])
             ->where('parent_id', $post->id)
             ->orderBy('id', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));
+
+        $mentions=Post::getMentionsList($replies->merge(new Collection([$post])));
 
         foreach($replies as $reply){
             $post_ids[]=$reply->id;
@@ -73,7 +84,7 @@ class ReplyController extends Controller
                 return $element->id;
             })->toArray();
 
-        $post->is_liked=in_array($reply->id, $user_likes)?1:0;
+        $post->is_liked=in_array($post->id, $user_likes)?1:0;
 
         foreach($replies as $reply){
             $reply->is_liked = in_array($reply->id, $user_likes)?1:0;
@@ -86,7 +97,7 @@ class ReplyController extends Controller
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact('post','replies')
+            'data'=>compact('post','replies', 'mentions')
         ];
     }
 }

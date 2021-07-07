@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\PriceAlert;
 use App\Models\Stock;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -254,7 +255,9 @@ class PostController extends Controller
         $user=$request->user;
 
         $post=Post::with(['gallery', 'customer'=>function($customer){
-            $customer->select('customers.id', 'username', 'image');
+            $customer->select('customers.id', 'name', 'username', 'image');
+        }, 'mentions'=>function($customer){
+            $customer->select('customers.id', 'name', 'username', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             ->find($post_id);
 
@@ -266,17 +269,24 @@ class PostController extends Controller
             $replies->with(['gallery','customer'=>function($customer){
                 $customer->select('customers.id', 'username', 'image');
             }])->withCount(['likes','replies']);
+        }, 'mentions'=>function($customer){
+            $customer->select('customers.id', 'name', 'username', 'image');
         }])
             ->withCount(['replies', 'likes'])
             ->where('parent_id', $post->id)
             ->orderBy('id', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));
 
+        $mentions=Post::getMentionsList($replies->merge(new Collection([$post])));
+
+        //$post->mentions=null;
+
         foreach($replies as $reply){
             $post_ids[]=$reply->id;
             foreach($reply->replies as $rreply){
                 $post_ids[]=$rreply->id;
             }
+            //$reply->mentions=null;
         }
 
         $user_likes=$user->likes()
@@ -298,7 +308,7 @@ class PostController extends Controller
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact('post','replies')
+            'data'=>compact('post','replies', 'mentions')
         ];
 
 

@@ -57,6 +57,8 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('follow/{id}', 'MobileApps\Api\FollowController@follow');
     $api->get('followers/{id}', 'MobileApps\Api\FollowController@followers');
     $api->get('followings/{id}', 'MobileApps\Api\FollowController@followings');
+    $api->get('block/profile/{profile_id}', 'MobileApps\Api\ProfileController@block');
+    $api->post('report/profile/{profile_id}', 'MobileApps\Api\ProfileController@report');
 
 
     $api->get('get-notification-settings', 'MobileApps\Api\ProfileController@getNotificationSettings');

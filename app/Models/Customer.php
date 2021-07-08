@@ -140,6 +140,21 @@ class Customer extends Authenticatable implements JWTSubject
         return $this->belongsToMany('App\Models\Post', 'post_likes', 'customer_id', 'post_id');
     }
 
+    public function blocked(){
+        return $this->belongsToMany('App\Models\Customer', 'block_profile', 'user_id', 'profile_id');
+    }
+
+    public function blockedBy(){
+        return $this->belongsToMany('App\Models\Customer', 'block_profile', 'profile_id', 'user_id');
+    }
+
+    public function reported(){
+        return $this->belongsToMany('App\Models\Customer', 'report_profile', 'user_id', 'profile_id')->withPivot('reason');
+    }
+
+    public function reportedBy(){
+        return $this->belongsToMany('App\Models\Customer', 'report_profile', 'profile_id', 'user_id');
+    }
 
 
 }

@@ -110,6 +110,7 @@ class ProfileController extends Controller
         if($profile->id!=$user->id){
             $profile->display_follow=1;
             $profile->display_message=1;
+            $profile->options_type='other';
             if($user->followings()->where('customers.id', $profile->id)->first())
                 $profile->is_followed=1;
             else
@@ -129,6 +130,7 @@ class ProfileController extends Controller
             $profile->display_follow=0;
             $profile->display_message=0;
             $profile->is_followed=0;
+            $profile->options_type='self';
 
             $posts=Post::with(['gallery', 'customer'=>function($customer){
                 $customer->select('customers.id', 'username', 'image');

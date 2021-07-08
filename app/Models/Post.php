@@ -63,6 +63,10 @@ class Post extends Model
 
         foreach($feeds as $f){
             $f->is_liked=(in_array($f->id, $fids)?1:0);
+            if($user->id!=$f->customer->id)
+                $f->options_type='other';
+            else
+                $f->options_type='self';
         }
 //        $feeds=$feeds->map(function($element)use($fids){
 //

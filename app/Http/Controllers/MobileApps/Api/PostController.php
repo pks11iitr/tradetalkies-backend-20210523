@@ -47,7 +47,7 @@ class PostController extends Controller
 
 
         $feeds=Post::with(['gallery', 'mentions', 'customer'=>function($customer){
-            $customer->select('id', 'username', 'image');
+            $customer->select('id', 'username', 'name', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
             ->where('parent_id', null)
@@ -114,7 +114,7 @@ class PostController extends Controller
 
 
         $feeds=Post::with(['gallery', 'customer'=>function($customer){
-            $customer->select('id', 'username', 'image');
+            $customer->select('id', 'username', 'name', 'image');
         }])->withCount(['replies', 'likes', 'shared'])
             //self created posts
             ->where('parent_id', null)
@@ -185,7 +185,7 @@ class PostController extends Controller
         //die;
 
         $feeds=Post::with(['gallery', 'customer'=>function($customer){
-            $customer->select('customers.id', 'username', 'image');
+            $customer->select('customers.id', 'username', 'name', 'image');
         }])
             ->withCount(['replies', 'likes', 'shared'])
             ->where('parent_id', null)

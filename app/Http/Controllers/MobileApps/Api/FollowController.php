@@ -41,6 +41,28 @@ class FollowController extends Controller
             ->where('followers.customer_id', $profile->id)
             ->paginate(env('PAGE_RESULT_COUNT'));
 
+        $fids=[];
+        foreach($followers as $f)
+            $fids[]=$f->id;
+
+        if(count($fids)){
+            $myfollowings=Customer::join('followers', 'customers.id', '=', 'followers.customer_id')
+                ->select('customers.id')
+                ->orderBy('customers.id', 'desc')
+                ->where('followers.follower_id', $user->id)
+                ->whereIn('followers.customer_id', $fids)
+                ->get()->map(function($element){
+                    return $element->id;
+                })->toArray();
+
+            foreach ($followers as $f){
+                if(in_array($f->id, $myfollowings))
+                    $f->is_following=1;
+                else
+                    $f->is_following=0;
+            }
+        }
+
         return [
             'status'=>'success',
             'action'=>'success',
@@ -58,6 +80,31 @@ class FollowController extends Controller
             ->orderBy('customers.id', 'desc')
             ->where('followers.follower_id', $profile->id)
             ->paginate(env('PAGE_RESULT_COUNT'));
+
+
+        $fids=[];
+        foreach($followings as $f)
+            $fids[]=$f->id;
+
+        if(count($fids)){
+            if(count($fids)){
+                $myfollowings=Customer::join('followers', 'customers.id', '=', 'followers.customer_id')
+                    ->select('customers.id')
+                    ->orderBy('customers.id', 'desc')
+                    ->where('followers.follower_id', $user->id)
+                    ->whereIn('followers.customer_id', $fids)
+                    ->get()->map(function($element){
+                        return $element->id;
+                    })->toArray();
+
+                foreach ($followings as $f){
+                    if(in_array($f->id, $myfollowings))
+                        $f->is_following=1;
+                    else
+                        $f->is_following=0;
+                }
+            }
+        }
 
         return [
             'status'=>'success',

@@ -180,7 +180,7 @@ class ProfileController extends Controller
         return [
             'status'=>'success',
             'action'=>'success',
-            'display_message'=>'Profile has been blocked',
+            'display_message'=>'Profile has been reported',
             'data'=>[]
         ];
     }

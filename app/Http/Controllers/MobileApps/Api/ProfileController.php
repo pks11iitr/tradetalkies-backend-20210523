@@ -156,6 +156,13 @@ class ProfileController extends Controller
     public function block(Request $request, $profile_id){
         $user=$request->user;
         $profile=Customer::findOrFail($profile_id);
+        if($user->id==$profile->id)
+            return [
+                'status'=>'success',
+                'action'=>'success',
+                'display_message'=>'Cannot block own profile',
+                'data'=>[]
+            ];
 
         $user->blocked()->syncWithoutDetaching($profile_id);
 
@@ -171,9 +178,18 @@ class ProfileController extends Controller
         $user=$request->user;
         $profile=Customer::findOrFail($profile_id);
 
+        if($user->id==$profile->id)
+            return [
+                'status'=>'success',
+                'action'=>'success',
+                'display_message'=>'Cannot report own profile',
+                'data'=>[]
+            ];
+
         $request->validate([
             'reason'=>'required|max:500'
         ]);
+
 
         $user->reported()->syncWithoutDetaching([$profile_id=>['reason'=>$request->reason]]);
 

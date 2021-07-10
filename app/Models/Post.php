@@ -78,7 +78,7 @@ class Post extends Model
 
         $reported=$user->reported->map(function($element){
             return $element->id;
-        });
+        })->toArray();
 
         foreach($feeds as $f){
             if(in_array($f->customer->id, $reported))

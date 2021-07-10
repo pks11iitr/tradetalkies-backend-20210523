@@ -158,8 +158,8 @@ class ProfileController extends Controller
         $profile=Customer::findOrFail($profile_id);
         if($user->id==$profile->id)
             return [
-                'status'=>'success',
-                'action'=>'success',
+                'status'=>'failed',
+                'action'=>'',
                 'display_message'=>'Cannot block own profile',
                 'data'=>[]
             ];
@@ -180,8 +180,8 @@ class ProfileController extends Controller
 
         if($user->id==$profile->id)
             return [
-                'status'=>'success',
-                'action'=>'success',
+                'status'=>'failed',
+                'action'=>'',
                 'display_message'=>'Cannot report own profile',
                 'data'=>[]
             ];

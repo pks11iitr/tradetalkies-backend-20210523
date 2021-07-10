@@ -74,6 +74,21 @@ class Post extends Model
 //        });
     }
 
+    public static function getReportStatus(&$feeds, $user){
+
+        $reported=$user->reported->map(function($element){
+            return $element->id;
+        });
+
+        foreach($feeds as $f){
+            if(in_array($f->customer->id, $reported))
+                $f->is_reported=1;
+            else
+                $f->is_reported=0;
+        }
+
+    }
+
 
     public static function applyDateSearchFilter($feeds,$type,$date_start,$date_end,$search_term){
 

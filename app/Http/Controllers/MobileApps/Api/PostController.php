@@ -78,6 +78,7 @@ class PostController extends Controller
         $mentions=Post::getMentionsList($feeds);
 
         Post::get_like_status($feeds,$user);
+        Post::getReportStatus($feeds,$user);
 
 //        $mentions=[
 //            [
@@ -149,6 +150,7 @@ class PostController extends Controller
         $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
 
         Post::get_like_status($feeds,$user);
+        Post::getReportStatus($feeds,$user);
 
 //        $mentions=[
 //            [
@@ -230,6 +232,7 @@ class PostController extends Controller
         Post::get_like_status($feeds,$user);
 
         $mentions=Post::getMentionsList($feeds);
+        Post::getReportStatus($feeds,$user);
 
 //        $mentions=[
 //            [

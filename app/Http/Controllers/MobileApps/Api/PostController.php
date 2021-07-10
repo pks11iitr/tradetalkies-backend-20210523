@@ -64,7 +64,7 @@ class PostController extends Controller
                             ->whereIn('room_id', $rooms);
                     });
             })
-            ->orderBy('created_at', 'desc');
+            ->orderBy('id', 'desc');
 
         $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 
@@ -132,7 +132,7 @@ class PostController extends Controller
                     });
             })
             ->orderBy('views', 'desc')
-            ->orderBy('created_at', 'desc');
+            ->orderBy('id', 'desc');
 
         $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 
@@ -206,7 +206,7 @@ class PostController extends Controller
                     });
             })
             //self created posts
-            ->orderBy('created_at', 'desc');
+            ->orderBy('id', 'desc');
 
         $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 

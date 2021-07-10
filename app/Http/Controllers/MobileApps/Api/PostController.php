@@ -299,7 +299,12 @@ class PostController extends Controller
 
         if(count($p_rep_ids))
         {
-            $c_replies=Post::whereIn('parent_id', $p_rep_ids)->get();
+            $c_replies=Post::with(['gallery', 'customer'=>function($customer){
+                $customer->select('customers.id', 'username', 'image');
+            }, 'mentions'=>function($customer){
+                $customer->select('customers.id', 'name', 'username', 'image');
+            }])
+            ->whereIn('parent_id', $p_rep_ids)->get();
             $c_rep_arr=[];
             foreach($c_replies as $r){
                 if(!isset($c_rep_arr[$r->parent_id]))

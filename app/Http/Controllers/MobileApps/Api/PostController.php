@@ -283,10 +283,6 @@ class PostController extends Controller
 
         $replies=Post::with(['gallery', 'customer'=>function($customer){
             $customer->select('customers.id', 'username', 'image');
-        }, 'replies'=>function($replies){
-            $replies->with(['gallery','customer'=>function($customer){
-                $customer->select('customers.id', 'username', 'image');
-            }])->withCount(['likes','replies']);
         }, 'mentions'=>function($customer){
             $customer->select('customers.id', 'name', 'username', 'image');
         }])
@@ -295,13 +291,43 @@ class PostController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(env('PAGE_RESULT_COUNT'));
 
+        $p_rep_ids=[];
+        foreach($replies as $rep)
+            $p_rep_ids[]=$rep->id;
+
+        //var_dump($p_rep_ids);die;
+
+        if(count($p_rep_ids))
+        {
+            $c_replies=Post::whereIn('parent_id', $p_rep_ids)->get();
+            $c_rep_arr=[];
+            foreach($c_replies as $r){
+                if(!isset($c_rep_arr[$r->parent_id]))
+                    $c_rep_arr[$r->parent_id]=[];
+                $c_rep_arr[$r->parent_id][]=$r;
+            }
+        }
+        //return $c_rep_arr;
+        foreach($replies as $r){
+            if(isset($c_rep_arr[$r->id])){
+                $r->replies=[
+                    'data'=>$c_rep_arr[$r->id]
+                ];
+            }else{
+                $r->replies=[
+                    'data'=>[]
+                ];
+            }
+
+        }
+
         $mentions=Post::getMentionsList($replies->merge(new Collection([$post])));
 
         //$post->mentions=null;
 
         foreach($replies as $reply){
             $post_ids[]=$reply->id;
-            foreach($reply->replies as $rreply){
+            foreach($reply->replies['data'] as $rreply){
                 $post_ids[]=$rreply->id;
             }
             //$reply->mentions=null;
@@ -317,7 +343,7 @@ class PostController extends Controller
 
         foreach($replies as $reply){
             $reply->is_liked = in_array($reply->id, $user_likes)?1:0;
-            foreach($reply->replies as $rreply){
+            foreach($reply->replies['data'] as $rreply){
                 $rreply->is_liked = in_array($rreply->id, $user_likes)?1:0;
             }
         }

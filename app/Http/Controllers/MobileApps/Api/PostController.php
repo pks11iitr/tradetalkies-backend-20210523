@@ -64,6 +64,11 @@ class PostController extends Controller
                             ->whereIn('room_id', $rooms);
                     });
             })
+            ->whereHas('customer', function($customer) use($user){
+                $customer->whereDoesntHave('blockedBy', function($blockedby) use($user){
+                    $blockedby->where('block_profile.user_id', $user->id);
+                });
+            })
             ->orderBy('id', 'desc');
 
         $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
@@ -130,6 +135,11 @@ class PostController extends Controller
                         $query->whereNotNull('room_id')
                             ->whereIn('room_id', $rooms);
                     });
+            })
+            ->whereHas('customer', function($customer) use($user){
+                $customer->whereDoesntHave('blockedBy', function($blockedby) use($user){
+                    $blockedby->where('block_profile.user_id', $user->id);
+                });
             })
             ->orderBy('views', 'desc')
             ->orderBy('id', 'desc');
@@ -204,6 +214,11 @@ class PostController extends Controller
                         $query->whereNotNull('room_id')
                             ->where('room_id', $rooms);
                     });
+            })
+            ->whereHas('customer', function($customer) use($user){
+                $customer->whereDoesntHave('blockedBy', function($blockedby) use($user){
+                    $blockedby->where('block_profile.user_id', $user->id);
+                });
             })
             //self created posts
             ->orderBy('id', 'desc');

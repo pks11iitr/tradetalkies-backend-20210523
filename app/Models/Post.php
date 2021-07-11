@@ -81,7 +81,7 @@ class Post extends Model
         })->toArray();
 
         foreach($feeds as $f){
-            if(in_array($f->customer_id, $reported))
+            if(in_array($f->id, $reported))
                 $f->is_reported=1;
             else
                 $f->is_reported=0;

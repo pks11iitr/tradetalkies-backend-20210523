@@ -345,24 +345,27 @@ class PostController extends Controller
                return $element->id;
             })->toArray();
 
-        $post->is_liked=in_array($post->id, $user_likes)?1:0;
-
         $reported=$user->reported->map(function($element){
             return $element->id;
         })->toArray();
+
+        $post->is_liked=in_array($post->id, $user_likes)?1:0;
+        $post->is_reported=in_array($post->id, $reported)?1:0;
+        $post->options_type=($post->customer_id==$user->id)?'self':'other';
+
 
         foreach($replies as $reply){
             $reply->is_liked = in_array($reply->id, $user_likes)?1:0;
             $reply->options_type=($user->id!=$reply->customer_id)?'other':'self';
             $reply->is_reported=0;
-            if(in_array($reply->customer_id, $reported))
+            if(in_array($reply->id, $reported))
                 $reply->is_reported=1;
             else
                 $reply->is_reported=0;
             foreach($reply->replies['data'] as $rreply){
                 $rreply->is_liked = in_array($rreply->id, $user_likes)?1:0;
                 $rreply->options_type=($user->id!=$rreply->customer_id)?'other':'self';
-                if(in_array($rreply->customer_id, $reported))
+                if(in_array($rreply->id, $reported))
                     $rreply->is_reported=1;
                 else
                     $rreply->is_reported=0;

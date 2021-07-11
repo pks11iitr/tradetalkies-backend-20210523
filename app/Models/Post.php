@@ -63,7 +63,7 @@ class Post extends Model
 
         foreach($feeds as $f){
             $f->is_liked=(in_array($f->id, $fids)?1:0);
-            if($user->id!=$f->customer->id)
+            if($user->id!=$f->customer_id)
                 $f->options_type='other';
             else
                 $f->options_type='self';
@@ -81,7 +81,7 @@ class Post extends Model
         })->toArray();
 
         foreach($feeds as $f){
-            if(in_array($f->customer->id, $reported))
+            if(in_array($f->customer_id, $reported))
                 $f->is_reported=1;
             else
                 $f->is_reported=0;

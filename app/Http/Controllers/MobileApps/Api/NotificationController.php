@@ -12,24 +12,21 @@ class NotificationController extends Controller
 
         $user=auth()->guard('customerapi')->user();
 
-        Notification::where('user_type', 'CUSTOMER')
-            ->where('user_id', $user->id??0)
+        Notification::where('user_id', $user->id??0)
             ->update(['seen_at'=> date('Y-m-d H:i:s')]);
 
-        $notifications=Notification::where('user_type', 'CUSTOMER');
-
         if($user){
-            $notifications=$notifications->where(function($query) use($user){
+            $notifications=Notification::where(function($query) use($user){
                 $query->where('user_id', $user->id)
                     ->where('type', 'individual');
             })
                 ->orWhere('type','all');
 
         }else{
-            $notifications=$notifications->where('type','all');
+            $notifications=Notification::where('type','all');
         }
 
-        $notifications=$notifications->select('id','title', 'description', 'created_at')
+        $notifications=$notifications->select('description', 'type', 'type_id', 'var1', 'var2', 'var3', 'created_at')
             ->orderBy('id', 'desc')
             ->paginate(50);
 

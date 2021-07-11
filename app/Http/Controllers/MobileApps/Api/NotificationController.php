@@ -17,8 +17,7 @@ class NotificationController extends Controller
 
         if($user){
             $notifications=Notification::where(function($query) use($user){
-                $query->where('user_id', $user->id)
-                    ->where('type', 'individual');
+                $query->where('user_id', $user->id);
             })
                 ->orWhere('type','all');
 

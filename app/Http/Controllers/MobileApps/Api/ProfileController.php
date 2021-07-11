@@ -22,7 +22,7 @@ class ProfileController extends Controller
             ];
         }
 
-        $user=$user->only('name', 'username', 'image', 'about', 'telegram_id', 'twitter_id', 'industry_id');
+        $user=$user->only('name', 'username', 'image', 'about', 'telegram_id', 'twitter_id', 'industry_id', 'age');
 
         $industries=config('myconfig.industry');
 

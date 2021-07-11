@@ -304,6 +304,7 @@ class PostController extends Controller
             }, 'mentions'=>function($customer){
                 $customer->select('customers.id', 'name', 'username', 'image');
             }])
+            ->withCount(['replies', 'likes'])
             ->whereIn('parent_id', $p_rep_ids)->get();
             $c_rep_arr=[];
             foreach($c_replies as $r){
@@ -326,7 +327,7 @@ class PostController extends Controller
 
         }
 
-        $mentions=Post::getMentionsList($replies->merge(new Collection([$post])));
+        $mentions=Post::getMentionsList($replies->merge(new Collection([$post]))->merge($c_replies));
 
         //$post->mentions=null;
 

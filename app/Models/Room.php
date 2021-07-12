@@ -6,6 +6,7 @@ use App\Models\Traits\DocumentUploadTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class Room extends Model
 {
@@ -23,6 +24,12 @@ class Room extends Model
 
     public function members(){
         return $this->belongsToMany('App\Models\Customer', 'room_members', 'room_id', 'customer_id');
+    }
+
+    public function getImageAttribute($value){
+        if($value)
+            return Storage::url($value);
+        return Storage::url('customers/default.jpeg');
     }
 
     public static function userFreeRooms(Request $request){

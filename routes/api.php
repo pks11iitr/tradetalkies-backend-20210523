@@ -72,6 +72,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->post('room/create', 'MobileApps\Api\RoomController@add');
     $api->get('room/members/{room_id}', 'MobileApps\Api\RoomController@members');
     $api->get('room/delete/{room_id}', 'MobileApps\Api\RoomController@delete');
+    $api->get('room/details/{room_id}', 'MobileApps\Api\RoomController@roomPosts');
 
 
 

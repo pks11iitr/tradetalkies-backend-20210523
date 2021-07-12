@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Post;
 use App\Models\Room;
 use Illuminate\Http\Request;
 
@@ -52,7 +53,7 @@ class RoomController extends Controller
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'Room Has Been Created',
-            'data'=>compact( 'posts')
+            'data'=>compact('room')
         ];
 
     }
@@ -99,6 +100,68 @@ class RoomController extends Controller
             'data'=>[]
         ];
 
+    }
+
+    public function roomPosts(Request $request, $room_id){
+        $user=$request->user;
+
+        $room=Room::withCount('members')->findOrFail($room_id);
+
+        $feeds=Post::with(['gallery', 'mentions', 'customer'=>function($customer){
+            $customer->select('id', 'username', 'name', 'image');
+        }])->withCount(['replies', 'likes', 'shared'])
+            //self created posts
+            ->where('parent_id', null)
+//            ->where(function($query) use($user,$followings,$rooms){
+//                $query->where('customer_id', $user->id)
+//                    //followings post
+//                    ->orWhere(function($query) use($followings){
+//                        $query->whereNull('room_id')
+//                            ->whereIn('customer_id', $followings);
+//                    })
+//                    //room posts
+//                    ->orWhere(function($query) use($rooms){
+//                        $query->whereNotNull('room_id')
+//                            ->whereIn('room_id', $rooms);
+//                    });
+//            })
+
+            ->whereHas('customer', function($customer) use($user){
+                $customer->whereDoesntHave('blockedBy', function($blockedby) use($user){
+                    $blockedby->where('block_profile.user_id', $user->id);
+                });
+            })
+            ->where('room_id', $room_id)
+            ->orderBy('id', 'desc');
+
+        $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
+
+        $mentions=Post::getMentionsList($feeds);
+
+        Post::get_like_status($feeds,$user);
+        Post::getReportStatus($feeds,$user);
+
+//        $mentions=[
+//            [
+//                'id'=>'@#1#',
+//                'name'=>'Pankaj Sengar'
+//            ],
+//            [
+//                'id'=>'@#2#',
+//                'name'=>'Bharat Arora'
+//            ],
+//            [
+//                'id'=>'@#3#',
+//                'name'=>'Random'
+//            ],
+//        ];
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact( 'feeds', 'mentions', 'room')
+        ];
     }
 
 

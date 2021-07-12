@@ -34,7 +34,7 @@ class RoomController extends Controller
            'name'=>'required|max:150',
            'type'=>'required|in:Free,Paid',
            'image'=>'required',
-           'fee'=>'required_if:type,Paid|integer|min:1'
+           'fee'=>'required_if:type,Paid|integer|min:0'
         ]);
         if($request->type=='Paid')
             $room=new Room($request->only('name', 'fee','type'));

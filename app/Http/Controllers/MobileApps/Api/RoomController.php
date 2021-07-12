@@ -65,20 +65,22 @@ class RoomController extends Controller
 
         $members=Customer::whereHas('rooms', function($rooms) use($room){
             $rooms->where('rooms.id', $room->id);
-        })->select('customers.id', 'username', 'customers.image')
+        })->select('customers.id', 'username', 'customers.image', 'name')
             ->paginate(env('PAGE_RESULT_COUNT'));
 
         $show_delete=0;
+        $show_leave=1;
         if($room->created_by==$user->id)
         {
             $show_delete=1;
+            $show_leave=0;
         }
 
         return [
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact( 'room', 'members', 'show_delete')
+            'data'=>compact( 'room', 'members', 'show_delete', 'show_leave')
         ];
 
     }
@@ -162,6 +164,44 @@ class RoomController extends Controller
             'display_message'=>'',
             'data'=>compact( 'feeds', 'mentions', 'room')
         ];
+    }
+
+
+    public function joinRoom(Request $request, $room_id){
+        $user=$request->user;
+        $room=Room::findOrFail($room_id);
+
+        if($room->type=='Free') {
+            $room->members()->syncWithoutDetaching($user->id);
+            $action = 'joined';
+            $data=[];
+        }
+        else{
+            $action='payment';
+            $data=[];
+        }
+
+        return [
+            'status'=>'success',
+            'action'=>$action,
+            'display_message'=>'',
+            'data'=>$data
+        ];
+    }
+
+    public function leaveRoom(Request $request, $room_id){
+        $user=$request->user;
+        $room=Room::findOrFail($room_id);
+
+        $room->members()->detach($user->id);
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>[]
+        ];
+
     }
 
 

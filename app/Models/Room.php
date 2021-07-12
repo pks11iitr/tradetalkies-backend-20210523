@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\DocumentUploadTrait;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -39,7 +40,8 @@ class Room extends Model
             return $element->id;
         })->toArray();
 
-        $rooms=Room::whereNotIn('id', $rooms)
+        $rooms=Room::withCount('members')
+            ->whereNotIn('id', $rooms)
             ->where('type', 'Free')
             ->paginate(env('PAGE_RESULT_COUNT'));
 
@@ -56,7 +58,8 @@ class Room extends Model
             return $element->id;
         })->toArray();
 
-        $rooms=Room::whereNotIn('id', $rooms)
+        $rooms=Room::withCount('members')
+            ->whereNotIn('id', $rooms)
             ->where('type', 'Paid')
             ->paginate(env('PAGE_RESULT_COUNT'));
 
@@ -68,7 +71,18 @@ class Room extends Model
     public static function userParticipatedRooms(Request $request){
 
         $user=$request->user;
-        return $user->rooms()->paginate(env('PAGE_RESULT_COUNT'));
+        $rooms=Room::whereHas('members', function($member)use($user){
+           $member->where('customers.id', $user->id);
+        })
+            ->withCount('members')
+            ->paginate(env('PAGE_RESULT_COUNT'));
+
+        foreach($rooms as $r){
+            $r->display_time=Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s', strtotime($r->created_at)))->diffForHumans();
+            $r->small_text='This is random demo text';
+        }
+
+        return $rooms;
 
     }
 

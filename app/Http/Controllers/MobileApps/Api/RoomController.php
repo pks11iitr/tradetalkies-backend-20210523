@@ -204,6 +204,11 @@ class RoomController extends Controller
 
     }
 
+//Select content, room_id from (
+//SELECT *,
+//@order_rank := IF(@current_room = room_id, @order_rank + 1, 1) AS order_rank,
+//@current_room := room_id
+//FROM posts, (SELECT @order_rank := 0, @current_room :=0) r where room_id is not null and  parent_id is null ORDER BY room_id desc,id DESC ) as temp where order_rank=1
 
 
 }

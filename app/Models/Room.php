@@ -42,8 +42,12 @@ class Room extends Model
 
         $rooms=Room::withCount('members')
             ->whereNotIn('id', $rooms)
-            ->where('type', 'Free')
-            ->paginate(env('PAGE_RESULT_COUNT'));
+            ->where('type', 'Free');
+
+        if(request('search'))
+            $rooms=$rooms->where('rooms.name', 'like', '%'.request('search').'%');
+
+        $rooms=$rooms->paginate(env('PAGE_RESULT_COUNT'));
 
         return $rooms;
 
@@ -60,8 +64,12 @@ class Room extends Model
 
         $rooms=Room::withCount('members')
             ->whereNotIn('id', $rooms)
-            ->where('type', 'Paid')
-            ->paginate(env('PAGE_RESULT_COUNT'));
+            ->where('type', 'Paid');
+
+        if(request('search'))
+            $rooms=$rooms->where('rooms.name', 'like', '%'.request('search').'%');
+
+        $rooms=$rooms->paginate(env('PAGE_RESULT_COUNT'));
 
         return $rooms;
 
@@ -74,8 +82,12 @@ class Room extends Model
         $rooms=Room::whereHas('members', function($member)use($user){
            $member->where('customers.id', $user->id);
         })
-            ->withCount('members')
-            ->paginate(env('PAGE_RESULT_COUNT'));
+            ->withCount('members');
+
+        if(request('search'))
+            $rooms=$rooms->where('rooms.name', 'like', '%'.request('search').'%');
+
+        $rooms=$rooms->paginate(env('PAGE_RESULT_COUNT'));
 
         foreach($rooms as $r){
             $r->display_time=Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s', strtotime($r->created_at)))->diffForHumans();

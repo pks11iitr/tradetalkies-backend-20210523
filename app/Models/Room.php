@@ -97,8 +97,4 @@ class Room extends Model
         return $rooms;
 
     }
-
-
-
-
 }

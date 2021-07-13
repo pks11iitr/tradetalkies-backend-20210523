@@ -78,8 +78,9 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
 
 
+    $api->get('wallet-home', 'MobileApps\Api\WalletController@home');
     $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
-    $api->post('recharge','MobileApps\Api\WalletController@addMoney');
+    //$api->post('recharge','MobileApps\Api\WalletController@addMoney');
 
 
 

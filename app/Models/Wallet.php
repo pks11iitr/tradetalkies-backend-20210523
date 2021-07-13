@@ -10,35 +10,37 @@ class Wallet extends Model
 {
     protected $table='wallet';
 
-    protected $fillable=['refid','type','amount','description','iscomplete', 'order_id', 'order_id_response', 'payment_id', 'payment_id_response','user_id', 'amount_type','created_at','chat_id'];
+    protected $fillable=['refid','type','amount','description','iscomplete', 'order_id_response', 'payment_id', 'payment_id_response','user_id'];
 
     protected $hidden=[ 'updated_at', 'deleted_at','iscomplete', 'order_id_response', 'payment_id', 'payment_id_response', 'order_id'];
 
-    protected $appends=['icon','date'];
+    public function customer()
+    {
+        return $this->belongsTo('App\Models\Customer', 'user_id');
+    }
+
 
     public static function balance($userid){
-        $wallet=Wallet::where('user_id', $userid)->where('amount_type', 'CASH')->where('iscomplete', true)->select(DB::raw('sum(amount) as total'), 'type')->groupBy('type')->get();
+        $wallet=Wallet::where('user_id', $userid)
+            ->where('iscomplete', true)
+            ->select(DB::raw('sum(amount) as total'), 'type')
+            ->groupBy('type')
+            ->get();
         $balances=[];
         foreach($wallet as $w){
             $balances[$w->type]=$w->total;
         }
-
         return ($balances['Credit']??0)-($balances['Debit']??0);
     }
 
-//    public static function points($userid){
-//        $wallet=Wallet::where('user_id', $userid)->where('amount_type', 'POINT')->where('iscomplete', true)->select(DB::raw('sum(amount) as total'), 'type')->groupBy('type')->get();
-//        $balances=[];
-//        foreach($wallet as $w){
-//            $balances[$w->type]=$w->total;
-//        }
-//
-//        return ($balances['Credit']??0)-($balances['Debit']??0);
-//    }
-
-
     public static function updatewallet($userid, $description, $type, $amount, $amount_type, $orderid=null){
-        Wallet::create(['user_id'=>$userid, 'description'=>$description, 'type'=>$type, 'iscomplete'=>1, 'amount'=>$amount, 'amount_type'=>$amount_type, 'order_id'=>$orderid, 'refid'=>date('YmdHis')]);
+        Wallet::create([
+            'user_id'=>$userid,
+            'description'=>$description,
+            'type'=>$type,
+            'iscomplete'=>1,
+            'amount'=>$amount,
+            'refid'=>date('YmdHis')]);
     }
 
 
@@ -60,23 +62,6 @@ class Wallet extends Model
             'paymentdone'=>$paymentdone,
             'fromwallet'=>$fromwallet
         ];
-    }
-
-    public function getIconAttribute($value){
-        if($this->type=='Debit')
-            return Storage::url('images/red.png');
-        else
-            return Storage::url('images/green.png');
-
-    }
-
-    public function getDateAttribute($value){
-        return date('h:iA', strtotime($this->created_at));
-    }
-
-    public function customer()
-    {
-        return $this->belongsTo('App\Models\Customer', 'user_id');
     }
 
 }

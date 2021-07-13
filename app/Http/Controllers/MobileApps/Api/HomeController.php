@@ -7,6 +7,7 @@ use App\Models\LocationLog;
 use App\Models\Notification;
 use App\Models\Shoppr;
 use App\Models\Stock;
+use App\Models\Wallet;
 use App\Models\WorkLocations;
 use Illuminate\Http\Request;
 use DB;
@@ -17,6 +18,8 @@ class HomeController extends Controller
 
        $user=$request->user;
 
+       $balance=Wallet::balance($user->id);
+
        $trending=Stock::get();
 
        $watchlist=$user->watchlist;
@@ -25,7 +28,7 @@ class HomeController extends Controller
            'status'=>'success',
            'action'=>'success',
            'message'=>'',
-           'data'=>compact('trending', 'watchlist')
+           'data'=>compact('trending', 'watchlist', 'balance')
        ];
 
 

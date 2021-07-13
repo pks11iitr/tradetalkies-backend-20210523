@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Events\RechargeConfirmed;
+use App\Models\Configuration;
 use App\Models\Wallet;
 use App\Services\Payment\RazorPayService;
 use Carbon\Carbon;
@@ -14,6 +15,26 @@ class WalletController extends Controller
     public function __construct(RazorPayService $pay){
         $this->pay=$pay;
     }
+
+    public function home(Request $request){
+        $user=$request->user;
+        $balance=Wallet::balance($user->id);
+
+        $configurations=[];
+        $configurationsobj=Configuration::whereIn('param_name', ['feed_post', 'account_created', 'open_daily', 'refer_friend', 'create_room', 'like_comment_share'])->get();
+
+        foreach ($configurationsobj as $config)
+            $configurations[$config->param_name]=$config->param_value;
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact( 'configurations', 'balance')
+        ];
+
+    }
+
     public function index(Request $request)
     {
         $user = auth()->guard('customerapi')->user();
@@ -25,15 +46,10 @@ class WalletController extends Controller
         if ($user) {
             $historyobj = Wallet::where('user_id', $user->id)
                 ->where('iscomplete', true)
-                ->where('amount_type', 'CASH')
-                ->select('amount', 'created_at', 'description', 'refid', 'type')
+                ->select('amount', 'created_at', 'description', 'type')
                 ->orderBy('id', 'desc')
                 ->get();
-          /*  $history = Wallet::where('user_id', $user->id)
-                ->where('iscomplete', true)
-                ->where('amount_type', 'CASH')
-                ->select('amount', 'created_at', 'description', 'refid', 'type')
-                ->orderBy('id', 'desc')->get();*/
+
             $history=[];
             foreach($historyobj as $h){
 
@@ -49,20 +65,10 @@ class WalletController extends Controller
                 $tlist=[];
                 foreach($date_transactions as $t)
                     $tlist[]=$t;
-                /*$tcdlist=[];
-                $tcclist=[];
-                foreach ($tlist as $tc)
-                    if($tc->type=='Credit'){
-                      $tcclist[]=$tc;
-                    }else{
-                        $tcdlist[]=$tc;
-                    }*/
 
                 $wallet_transactions[]=[
                     'date'=>$date,
                     'transactions'=>$tlist,
-                   // 'transcredit'=>$tcclist,
-                  //  'transdebit'=>$tcdlist
                 ];
 
             }

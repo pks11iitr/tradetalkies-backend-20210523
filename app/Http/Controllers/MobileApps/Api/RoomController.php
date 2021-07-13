@@ -109,6 +109,11 @@ class RoomController extends Controller
 
         $room=Room::withCount('members')->findOrFail($room_id);
 
+        if($room->created_by==$user->id)
+            $room->create_post=1;
+        else
+            $room->create_post=0;
+
         $feeds=Post::with(['gallery', 'mentions', 'customer'=>function($customer){
             $customer->select('id', 'username', 'name', 'image');
         }])->withCount(['replies', 'likes', 'shared'])

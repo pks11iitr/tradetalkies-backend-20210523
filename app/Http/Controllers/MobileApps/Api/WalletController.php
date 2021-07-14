@@ -48,7 +48,7 @@ class WalletController extends Controller
                 ->where('iscomplete', true)
                 ->select('amount', 'created_at', 'description', 'type')
                 ->orderBy('id', 'desc')
-                ->get();
+                ->paginate(100);
 
             $history=[];
             foreach($historyobj as $h){
@@ -83,7 +83,7 @@ class WalletController extends Controller
 
         return [
             'status' => 'success',
-            'data' => compact('wallet_transactions', 'balance')
+            'data' => compact('wallet_transactions', 'balance', 'historyobj')
         ];
     }
     public function userbalance(){

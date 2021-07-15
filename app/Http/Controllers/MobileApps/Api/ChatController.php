@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Chat;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +19,7 @@ class ChatController extends Controller
         }, 'user2'=>function($user){
             $user->select('id', 'name', 'image', 'username');
         }])
+            ->where('user_1', '!=', DB::raw('user_2'))
             ->whereHas('user1', function($user1){
                 $user1->where('customers.isactive', true);
             })
@@ -67,7 +69,7 @@ class ChatController extends Controller
                     'name'=>$userchat->user2->name,
                     'image'=>$userchat->user2->image,
                     'chat'=>$chatlist[$userchat->id]->message,
-                    'date'=>$chatlist[$userchat->id]->created_at,
+                    'date'=>Carbon::createFromFormat($chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
                     'username'=>$userchat->user2->username,
                 ];
             }else{
@@ -76,7 +78,7 @@ class ChatController extends Controller
                     'name'=>$userchat->user1->name,
                     'image'=>$userchat->user1->image,
                     'chat'=>$chatlist[$userchat->id]->message,
-                    'date'=>$chatlist[$userchat->id]->created_at,
+                    'date'=>Carbon::createFromFormat($chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
                     'username'=>$userchat->user1->username,
                 ];
             }

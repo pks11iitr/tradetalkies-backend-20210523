@@ -92,4 +92,53 @@ class ChatController extends Controller
 
 
     }
+
+
+    public function chatDetails(Request $request, $user_id){
+
+        $user=$request->user;
+
+        $chatsobj=Chat::with(['user1', 'user2'])
+            ->where(function($query) use($user, $user_id){
+                $query->where(function($query) use($user, $user_id){
+                    $query->where('user_1', $user->id)
+                        ->where('user_2', $user_id);
+                })
+                    ->orWhere(function($query) use($user, $user_id){
+                        $query->where('user_1', $user_id)
+                            ->where('user_2', $user->id);
+                    });
+            })
+            ->orderBy('id','desc')
+            ->paginate(20);
+
+        $next_page_url=$chatsobj->nextPageUrl();
+        $prev_page_url=$chatsobj->previousPageUrl();
+
+        $chats=[];
+        foreach ($chatsobj as $c){
+            if($c->user_1==$user->id){
+                $chats[]=[
+                    'image'=>$c->user1->image,
+                    'message'=>$c->message,
+                    'date'=>$c->created_at,
+                    'direction'=>$c->direction
+                ];
+            }else{
+                $chats[]=[
+                    'image'=>$c->user2->image,
+                    'message'=>$c->message,
+                    'date'=>$c->created_at,
+                    'direction'=>$c->direction
+                ];
+            }
+        }
+
+        return [
+            'status'=>'success',
+            'message'=>'',
+            'data'=>compact('chats', 'next_page_url', 'prev_page_url')
+        ];
+
+    }
 }

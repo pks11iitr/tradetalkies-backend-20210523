@@ -145,6 +145,8 @@ class ChatController extends Controller
             }
         }
 
+        $chats=array_reverse($chats);
+
         return [
             'status'=>'success',
             'message'=>'',
@@ -154,7 +156,61 @@ class ChatController extends Controller
     }
 
 
-    public function chatPolling(Request $request){
+    public function chatPolling(Request $request, $user_id){
 
+        $user=$request->user;
+
+        $chatsobj=Chat::with(['user1', 'user2'])
+            ->where(function($query) use($user, $user_id){
+                $query->where(function($query) use($user, $user_id){
+                    $query->where('user_1', $user->id)
+                        ->where('user_2', $user_id);
+                })
+                    ->orWhere(function($query) use($user, $user_id){
+                        $query->where('user_1', $user_id)
+                            ->where('user_2', $user->id);
+                    });
+            })
+            ->where('seen_at', null)
+            ->orderBy('id','desc')
+            ->get();
+
+        Chat::where(function($query) use($user, $user_id){
+            $query->where('user_1', $user->id)
+                ->where('user_2', $user_id)
+                ->where('direction', 1);
+        })
+            ->orWhere(function($query) use($user, $user_id){
+                $query->where('user_1', $user_id)
+                    ->where('user_2', $user->id)
+                    ->where('direction', 0);
+            })->update(['seen_at'=> date('Y-m-d H:i:s')]);
+
+        $chats=[];
+        foreach ($chatsobj as $c){
+            if($c->user_1==$user->id){
+                $chats[]=[
+                    'image'=>$c->user1->image,
+                    'message'=>$c->message,
+                    'date'=>$c->created_at,
+                    'direction'=>$c->direction
+                ];
+            }else{
+                $chats[]=[
+                    'image'=>$c->user2->image,
+                    'message'=>$c->message,
+                    'date'=>$c->created_at,
+                    'direction'=>$c->direction
+                ];
+            }
+        }
+
+        $chats=array_reverse($chats);
+
+        return [
+            'status'=>'success',
+            'message'=>'',
+            'data'=>compact('chats')
+        ];
     }
 }

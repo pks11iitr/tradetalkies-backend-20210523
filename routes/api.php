@@ -84,6 +84,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
 
     $api->get('chats', 'MobileApps\Api\ChatController@chatlist');
     $api->get('chats/{id}', 'MobileApps\Api\ChatController@chatDetails');
+    $api->get('polling/{id}', 'MobileApps\Api\ChatController@chatPolling');
     $api->post('send/{id}', 'MobileApps\Api\ChatController@send');
 
 });

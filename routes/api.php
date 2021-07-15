@@ -82,13 +82,9 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->get('wallet-history', 'MobileApps\Api\WalletController@index');
     //$api->post('recharge','MobileApps\Api\WalletController@addMoney');
 
-
-
-    $api->get('chats', 'MobileApps\Api\ChatController@chathistory');
-    $api->post('start-chat/{store_id?}', 'MobileApps\Api\ChatController@startChat');
-
-    $api->get('chat-messages/{id}', 'MobileApps\Api\ChatMessageController@chatDetails');
-    $api->post('send-message/{id}', 'MobileApps\Api\ChatMessageController@send');
+    $api->get('chats', 'MobileApps\Api\ChatController@chatlist');
+    $api->get('chats/{id}', 'MobileApps\Api\ChatController@chatDetails');
+    $api->post('send/{id}', 'MobileApps\Api\ChatController@send');
 
 });
 

@@ -11,26 +11,19 @@ class Chat extends Model
 
     protected $table='chats';
 
-    protected $fillable=['customer_id', 'shoppr_id', 'lat','lang','location_id', 'is_terminated'];
+    protected $fillable=['user_1', 'user_2', 'direction', 'message', 'is_first_approved','seen_at'];
 
 
-    public function customer(){
-        return $this->belongsTo('App\Models\Customer', 'customer_id');
+    public function user1(){
+        return $this->belongsTo('App\Models\Customer', 'user_1');
     }
 
-    public function shoppr(){
-        return $this->belongsTo('App\Models\Shoppr', 'shoppr_id');
+    public function user2(){
+        return $this->belongsTo('App\Models\Customer', 'user_2');
     }
 
-    public function messages(){
-        return $this->hasMany('App\Models\ChatMessage', 'chat_id');
-    }
-
-    public function getCreatedAtAttribute($value){
-        return date('h:iA', strtotime($value));
-    }
-
-    public function rejectedby(){
-        return $this->belongsToMany('App\Models\Shoppr', 'rejected_chats', 'chat_id', 'shoppr_id');
+    public function getCreatedAtAttribute($value)
+    {
+        return date('d/m/Y h:ia', strtotime($value));
     }
 }

@@ -326,8 +326,10 @@ class PostController extends Controller
             }
 
         }
-
-        $mentions=Post::getMentionsList($replies->merge(new Collection([$post]))->merge($c_replies));
+        if(!empty($c_replies))
+            $mentions=Post::getMentionsList($replies->merge(new Collection([$post]))->merge($c_replies));
+        else
+            $mentions=Post::getMentionsList($replies->merge(new \Illuminate\Support\Collection([$post])));
 
         //$post->mentions=null;
 

@@ -107,7 +107,7 @@ class ChatController extends Controller
                 $query->where('user_1', $user_id)
                     ->where('user_2', $user->id)
                     ->where('direction', 0);
-            })->update('seen_at', date('Y-m-d H:i:s'));
+            })->update(['seen_at'=> date('Y-m-d H:i:s')]);
 
         $chatsobj=Chat::with(['user1', 'user2'])
             ->where(function($query) use($user, $user_id){

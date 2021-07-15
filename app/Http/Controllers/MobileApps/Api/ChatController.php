@@ -98,6 +98,17 @@ class ChatController extends Controller
 
         $user=$request->user;
 
+        Chat::where(function($query) use($user, $user_id){
+                $query->where('user_1', $user->id)
+                    ->where('user_2', $user_id)
+                    ->where('direction', 1);
+            })
+            ->orWhere(function($query) use($user, $user_id){
+                $query->where('user_1', $user_id)
+                    ->where('user_2', $user->id)
+                    ->where('direction', 0);
+            })->update('seen_at', date('Y-m-d H:i:s'));
+
         $chatsobj=Chat::with(['user1', 'user2'])
             ->where(function($query) use($user, $user_id){
                 $query->where(function($query) use($user, $user_id){
@@ -139,6 +150,11 @@ class ChatController extends Controller
             'message'=>'',
             'data'=>compact('chats', 'next_page_url', 'prev_page_url')
         ];
+
+    }
+
+
+    public function chatPolling(Request $request){
 
     }
 }

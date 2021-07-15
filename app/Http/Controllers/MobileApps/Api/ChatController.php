@@ -69,7 +69,7 @@ class ChatController extends Controller
                     'name'=>$userchat->user2->name,
                     'image'=>$userchat->user2->image,
                     'chat'=>$chatlist[$userchat->id]->message,
-                    'date'=>Carbon::createFromFormat($chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
+                    'date'=>Carbon::createFromFormat('Y-m-d H:i:s', $chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
                     'username'=>$userchat->user2->username,
                 ];
             }else{
@@ -78,7 +78,7 @@ class ChatController extends Controller
                     'name'=>$userchat->user1->name,
                     'image'=>$userchat->user1->image,
                     'chat'=>$chatlist[$userchat->id]->message,
-                    'date'=>Carbon::createFromFormat($chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
+                    'date'=>Carbon::createFromFormat('Y-m-d H:i:s', $chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
                     'username'=>$userchat->user1->username,
                 ];
             }

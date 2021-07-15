@@ -68,7 +68,7 @@ class ChatController extends Controller
                     'image'=>$userchat->user2->image,
                     'chat'=>$chatlist[$userchat->id]->message,
                     'date'=>$chatlist[$userchat->id]->created_at,
-                    'unique_code'=>$userchat->user2->unique_code,
+                    'username'=>$userchat->user2->username,
                 ];
             }else{
                 $userchats[]=[
@@ -77,7 +77,7 @@ class ChatController extends Controller
                     'image'=>$userchat->user1->image,
                     'chat'=>$chatlist[$userchat->id]->message,
                     'date'=>$chatlist[$userchat->id]->created_at,
-                    'unique_code'=>$userchat->user1->unique_code,
+                    'username'=>$userchat->user1->username,
                 ];
             }
         }

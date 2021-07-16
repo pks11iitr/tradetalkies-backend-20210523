@@ -4,6 +4,8 @@ namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Chat;
+use App\Models\Customer;
+use App\Services\Notification\FCMNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -68,7 +70,7 @@ class ChatController extends Controller
                     'id'=>$userchat->user_2,
                     'name'=>$userchat->user2->name,
                     'image'=>$userchat->user2->image,
-                    'chat'=>$chatlist[$userchat->id]->message,
+                    'chat'=>$chatlist[$userchat->id]->message??'[object]',
                     'date'=>Carbon::createFromFormat('Y-m-d H:i:s', $chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
                     'username'=>$userchat->user2->username,
                 ];
@@ -77,7 +79,7 @@ class ChatController extends Controller
                     'id'=>$userchat->user_1,
                     'name'=>$userchat->user1->name,
                     'image'=>$userchat->user1->image,
-                    'chat'=>$chatlist[$userchat->id]->message,
+                    'chat'=>$chatlist[$userchat->id]->message??'[object]',
                     'date'=>Carbon::createFromFormat('Y-m-d H:i:s', $chatlist[$userchat->id]->getRawOriginal('created_at'))->diffForHumans(),
                     'username'=>$userchat->user1->username,
                 ];
@@ -123,29 +125,40 @@ class ChatController extends Controller
             ->orderBy('id','desc')
             ->paginate(20);
 
+        $chatsobjrev=$chatsobj->reverse();
+
         $next_page_url=$chatsobj->nextPageUrl();
         $prev_page_url=$chatsobj->previousPageUrl();
 
         $chats=[];
-        foreach ($chatsobj as $c){
-            if($c->user_1==$user->id){
-                $chats[]=[
+        foreach ($chatsobjrev as $c){
+            $date=date('d M Y', strtotime($c->getRawOriginal('created_at')));
+            if(!isset($chats[$date]))
+                $chats[$date]=[
+                    'date'=>$date,
+                    'chats'=>[]
+                ];
+
+            if($c->user_1==$user->id ){
+                $chats[$date]['chats'][]=[
                     'image'=>$c->user1->image,
-                    'message'=>$c->message,
+                    'message'=>$c->message??'',
+                    'chat_image'=>$c->image,
                     'date'=>$c->created_at,
-                    'direction'=>$c->direction
+                    'direction'=>$c->direction==0?'right':'left'
                 ];
             }else{
-                $chats[]=[
+                $chats[$date]['chats'][]=[
                     'image'=>$c->user2->image,
-                    'message'=>$c->message,
+                    'message'=>$c->message??'',
+                    'chat_image'=>$c->image,
                     'date'=>$c->created_at,
-                    'direction'=>$c->direction
+                    'direction'=>$c->direction==1?'right':'left'
                 ];
             }
         }
 
-        $chats=array_reverse($chats);
+        $chats=array_values($chats);
 
         return [
             'status'=>'success',
@@ -175,6 +188,8 @@ class ChatController extends Controller
             ->orderBy('id','desc')
             ->get();
 
+        $chatsobjrev=$chatsobj->reverse();
+
         Chat::where(function($query) use($user, $user_id){
             $query->where('user_1', $user->id)
                 ->where('user_2', $user_id)
@@ -187,30 +202,105 @@ class ChatController extends Controller
             })->update(['seen_at'=> date('Y-m-d H:i:s')]);
 
         $chats=[];
-        foreach ($chatsobj as $c){
-            if($c->user_1==$user->id){
-                $chats[]=[
+        foreach ($chatsobjrev as $c){
+            $date=date('d M Y', strtotime($c->getRawOriginal('created_at')));
+            if(!isset($chats[$date]))
+                $chats[$date]=[
+                    'date'=>$date,
+                    'chats'=>[]
+                ];
+
+            if($c->user_1==$user->id ){
+                $chats[$date]['chats'][]=[
                     'image'=>$c->user1->image,
-                    'message'=>$c->message,
+                    'message'=>$c->message??'',
+                    'chat_image'=>$c->image,
                     'date'=>$c->created_at,
-                    'direction'=>$c->direction
+                    'direction'=>$c->direction==0?'right':'left'
                 ];
             }else{
-                $chats[]=[
+                $chats[$date]['chats'][]=[
                     'image'=>$c->user2->image,
-                    'message'=>$c->message,
+                    'message'=>$c->message??'',
+                    'chat_image'=>$c->image,
                     'date'=>$c->created_at,
-                    'direction'=>$c->direction
+                    'direction'=>$c->direction==1?'right':'left'
                 ];
             }
         }
 
-        $chats=array_reverse($chats);
+        $chats=array_values($chats);
 
         return [
             'status'=>'success',
             'message'=>'',
             'data'=>compact('chats')
         ];
+    }
+
+    public function send(Request $request, $user_id)
+    {
+
+        $request->validate([
+            'message' => 'required'
+        ]);
+
+        $user = $request->user;
+        $receiver = Customer::findOrFail($user_id);
+
+        $chat = Chat::where(function ($query) use ($user, $receiver) {
+            $query->where('user_1', $user->id)
+                ->where('user_2', $receiver->id);
+        })->orWhere(function ($query) use ($user, $receiver) {
+            $query->where('user_1', $user->id)
+                ->where('user_2', $receiver->id);
+        })->first();
+
+        if (!$chat)
+            $is_first_approved = 0;
+        else if ($chat->user_1 == $user->id && $chat->direction == 0 && $chat->is_first_approved == 0) {
+            return [
+                'status'=>'failed',
+                'message'=>'You can send message only when receiver replies your last message'
+            ];
+        }
+        else if ($chat->user_2 == $user->id && $chat->direction == 1 && $chat->is_first_approved == 0){
+            return [
+                'status'=>'failed',
+                'message'=>'You can send message only when receiver replies your last message'
+            ];
+    }
+        else{
+            $is_first_approved = 1;
+    }
+
+        if($user->id<$user_id){
+
+            $chat=Chat::create([
+                'user_1'=>$user->id,
+                'user_2'=>$user_id,
+                'message'=>$request->message,
+                'direction'=>0,
+                'is_first_approved'=>$is_first_approved
+            ]);
+
+        }else{
+            $chat=Chat::create([
+                'user_1'=>$user_id,
+                'user_2'=>$user->id,
+                'message'=>$request->message,
+                'direction'=>1,
+                'is_first_approved'=>$is_first_approved
+            ]);
+        }
+
+//        $receiver->notify( new FCMNotification('New message from '.$user->name, $request->message, ['message'=>$request->message, 'type'=>'chat', 'chat_id'=>''.$chat->chat_id], 'chat_screen'));
+
+        return [
+            'status'=>'success',
+            'message'=>'',
+            'data'=>[]
+        ];
+
     }
 }

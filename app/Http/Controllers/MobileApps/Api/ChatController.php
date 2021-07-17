@@ -100,17 +100,6 @@ class ChatController extends Controller
 
         $user=$request->user;
 
-        Chat::where(function($query) use($user, $user_id){
-                $query->where('user_1', $user->id)
-                    ->where('user_2', $user_id)
-                    ->where('direction', 1);
-            })
-            ->orWhere(function($query) use($user, $user_id){
-                $query->where('user_1', $user_id)
-                    ->where('user_2', $user->id)
-                    ->where('direction', 0);
-            })->update(['seen_at'=> date('Y-m-d H:i:s')]);
-
         $chatsobj=Chat::with(['user1', 'user2'])
             ->where(function($query) use($user, $user_id){
                 $query->where(function($query) use($user, $user_id){
@@ -139,7 +128,10 @@ class ChatController extends Controller
                     'chats'=>[]
                 ];
 
+            $type=null;
+
             if($c->user_1==$user->id ){
+                $type='user1';
                 $chats[$date]['chats'][]=[
                     'image'=>$c->user1->image,
                     'message'=>$c->message??'',
@@ -148,6 +140,7 @@ class ChatController extends Controller
                     'direction'=>$c->direction==0?'right':'left'
                 ];
             }else{
+                $type='user2';
                 $chats[$date]['chats'][]=[
                     'image'=>$c->user2->image,
                     'message'=>$c->message??'',
@@ -159,6 +152,25 @@ class ChatController extends Controller
         }
 
         $chats=array_values($chats);
+
+        if($type){
+            $update=Chat::where(function($query) use($user, $user_id){
+                $query->where('user_1', $user->id)
+                    ->where('user_2', $user_id)
+                    ->where('direction', 1);
+            })
+                ->orWhere(function($query) use($user, $user_id){
+                    $query->where('user_1', $user_id)
+                        ->where('user_2', $user->id)
+                        ->where('direction', 0);
+                });
+            if($type=='user1')
+                $update->update(['user1_seen_at'=> date('Y-m-d H:i:s')]);
+            else
+                $update->update(['user2_seen_at'=> date('Y-m-d H:i:s')]);
+
+        }
+
 
         return [
             'status'=>'success',
@@ -184,7 +196,16 @@ class ChatController extends Controller
                             ->where('user_2', $user->id);
                     });
             })
-            ->where('seen_at', null)
+            ->where(function($query)use($user){
+                $query->where(function($query) use($user){
+                    $query->where('user_1', $user->id)
+                        ->where('user1_seen_at', null);
+                })
+                    ->orWhere(function($query) use($user){
+                        $query->where('user_2', $user->id)
+                            ->where('user2_seen_at', null);
+                    });
+            })
             ->orderBy('id','desc')
             ->get();
 
@@ -240,7 +261,6 @@ class ChatController extends Controller
 
     public function send(Request $request, $user_id)
     {
-
         $request->validate([
             'message' => 'required'
         ]);
@@ -281,7 +301,8 @@ class ChatController extends Controller
                 'user_2'=>$user_id,
                 'message'=>$request->message,
                 'direction'=>0,
-                'is_first_approved'=>$is_first_approved
+                'is_first_approved'=>$is_first_approved,
+                'user1_seen_at'=>date('Y-m-d H:i:s')
             ]);
 
         }else{
@@ -290,7 +311,8 @@ class ChatController extends Controller
                 'user_2'=>$user->id,
                 'message'=>$request->message,
                 'direction'=>1,
-                'is_first_approved'=>$is_first_approved
+                'is_first_approved'=>$is_first_approved,
+                'user2_seen_at'=>date('Y-m-d H:i:s')
             ]);
         }
 

@@ -11,7 +11,7 @@ class Chat extends Model
 
     protected $table='chats';
 
-    protected $fillable=['user_1', 'user_2', 'direction', 'message', 'image','is_first_approved','seen_at'];
+    protected $fillable=['user_1', 'user_2', 'direction', 'message', 'image','is_first_approved','user1_seen_at', 'user2_seen_at'];
 
 
     public function user1(){

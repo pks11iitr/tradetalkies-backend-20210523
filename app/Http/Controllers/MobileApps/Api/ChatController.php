@@ -211,17 +211,6 @@ class ChatController extends Controller
 
         $chatsobjrev=$chatsobj->reverse();
 
-        Chat::where(function($query) use($user, $user_id){
-            $query->where('user_1', $user->id)
-                ->where('user_2', $user_id)
-                ->where('direction', 1);
-        })
-            ->orWhere(function($query) use($user, $user_id){
-                $query->where('user_1', $user_id)
-                    ->where('user_2', $user->id)
-                    ->where('direction', 0);
-            })->update(['seen_at'=> date('Y-m-d H:i:s')]);
-
         $chats=[];
         foreach ($chatsobjrev as $c){
             $date=date('d M Y', strtotime($c->getRawOriginal('created_at')));
@@ -231,7 +220,9 @@ class ChatController extends Controller
                     'chats'=>[]
                 ];
 
+            $type=null;
             if($c->user_1==$user->id ){
+                $type='user1';
                 $chats[$date]['chats'][]=[
                     'image'=>$c->user1->image,
                     'message'=>$c->message??'',
@@ -240,6 +231,7 @@ class ChatController extends Controller
                     'direction'=>$c->direction==0?'right':'left'
                 ];
             }else{
+                $type='user2';
                 $chats[$date]['chats'][]=[
                     'image'=>$c->user2->image,
                     'message'=>$c->message??'',
@@ -248,6 +240,24 @@ class ChatController extends Controller
                     'direction'=>$c->direction==1?'right':'left'
                 ];
             }
+        }
+
+        if($type){
+            $update=Chat::where(function($query) use($user, $user_id){
+                $query->where('user_1', $user->id)
+                    ->where('user_2', $user_id)
+                    ->where('direction', 1);
+            })
+                ->orWhere(function($query) use($user, $user_id){
+                    $query->where('user_1', $user_id)
+                        ->where('user_2', $user->id)
+                        ->where('direction', 0);
+                });
+            if($type=='user1')
+                $update->update(['user1_seen_at'=> date('Y-m-d H:i:s')]);
+            else
+                $update->update(['user2_seen_at'=> date('Y-m-d H:i:s')]);
+
         }
 
         $chats=array_values($chats);

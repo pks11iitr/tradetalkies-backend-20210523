@@ -304,6 +304,12 @@ class ChatController extends Controller
             $is_first_approved = 1;
     }
 
+        if($is_first_approved && $chat->is_first_approved==0){
+            $chat->is_first_approved=1;
+            $chat->save();
+        }
+
+
         if($user->id<$user_id){
 
             $chat=Chat::create([

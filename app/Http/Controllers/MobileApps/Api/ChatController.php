@@ -120,6 +120,7 @@ class ChatController extends Controller
         $prev_page_url=$chatsobj->previousPageUrl();
 
         $chats=[];
+        $type=null;
         foreach ($chatsobjrev as $c){
             $date=date('d M Y', strtotime($c->getRawOriginal('created_at')));
             if(!isset($chats[$date]))
@@ -127,8 +128,6 @@ class ChatController extends Controller
                     'date'=>$date,
                     'chats'=>[]
                 ];
-
-            $type=null;
 
             if($c->user_1==$user->id ){
                 $type='user1';
@@ -211,6 +210,7 @@ class ChatController extends Controller
 
         $chatsobjrev=$chatsobj->reverse();
 
+        $type=null;
         $chats=[];
         foreach ($chatsobjrev as $c){
             $date=date('d M Y', strtotime($c->getRawOriginal('created_at')));
@@ -220,7 +220,6 @@ class ChatController extends Controller
                     'chats'=>[]
                 ];
 
-            $type=null;
             if($c->user_1==$user->id ){
                 $type='user1';
                 $chats[$date]['chats'][]=[

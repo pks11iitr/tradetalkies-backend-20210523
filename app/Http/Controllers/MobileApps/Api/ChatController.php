@@ -282,8 +282,8 @@ class ChatController extends Controller
             $query->where('user_1', $user->id)
                 ->where('user_2', $receiver->id);
         })->orWhere(function ($query) use ($user, $receiver) {
-            $query->where('user_1', $user->id)
-                ->where('user_2', $receiver->id);
+            $query->where('user_1', $receiver->id)
+                ->where('user_2', $user->id);
         })->first();
 
         if (!$chat)

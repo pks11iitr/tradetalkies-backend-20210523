@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DocumentUploadTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Chat extends Model
 {
@@ -26,5 +27,11 @@ class Chat extends Model
     public function getCreatedAtAttribute($value)
     {
         return date('d/m/Y h:ia', strtotime($value));
+    }
+
+    public function getImageAttribute($value){
+        if($value)
+            return Storage::url($value);
+        return '';
     }
 }

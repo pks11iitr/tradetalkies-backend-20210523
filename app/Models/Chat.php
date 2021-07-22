@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DocumentUploadTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Chat extends Model
 {
-    use HasFactory;
+    use HasFactory, DocumentUploadTrait;
 
     protected $table='chats';
 

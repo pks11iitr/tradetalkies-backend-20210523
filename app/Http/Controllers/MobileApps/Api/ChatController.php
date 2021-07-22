@@ -331,6 +331,9 @@ class ChatController extends Controller
             ]);
         }
 
+        if($request->image)
+            $chat->saveImage($request->image, 'chats');
+
 //        $receiver->notify( new FCMNotification('New message from '.$user->name, $request->message, ['message'=>$request->message, 'type'=>'chat', 'chat_id'=>''.$chat->chat_id], 'chat_screen'));
 
         return [

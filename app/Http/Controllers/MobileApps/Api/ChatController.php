@@ -119,6 +119,7 @@ class ChatController extends Controller
         $next_page_url=$chatsobj->nextPageUrl();
         $prev_page_url=$chatsobj->previousPageUrl();
         $last_page_url=$chatsobj->url($chatsobj->lastPage());
+        $last_page=$chatsobj->lastPage();
 
         $chats=[];
         $type=null;
@@ -175,7 +176,7 @@ class ChatController extends Controller
         return [
             'status'=>'success',
             'message'=>'',
-            'data'=>compact('chats', 'next_page_url', 'prev_page_url', 'last_page_url')
+            'data'=>compact('chats', 'next_page_url', 'prev_page_url', 'last_page_url', 'last_page')
         ];
 
     }

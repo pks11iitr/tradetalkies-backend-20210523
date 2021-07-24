@@ -184,7 +184,7 @@ class LoginController extends Controller
             'notification_token'=>'required',
         ]);
 
-        $user=Socialite::driver('facebook')->getUserByToken($request->facebook_token);
+        $user=Socialite::driver('facebook')->userFromToken($request->facebook_token);
 
         if (!isset($user->email)) {
             return [

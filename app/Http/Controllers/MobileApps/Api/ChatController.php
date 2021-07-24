@@ -372,6 +372,10 @@ class ChatController extends Controller
             'chat_user_id'=>$user->id
         ], ['last_chat_id'=>$chat->id]);
 
+        ChatUserList::where(['chat_user_id', $user_id, 'customer_id'=>$user_id])->update([
+            'last_chat_id'=>$chat->id
+        ]);
+
         if($request->image)
             $chat->saveImage($request->image, 'chats');
 

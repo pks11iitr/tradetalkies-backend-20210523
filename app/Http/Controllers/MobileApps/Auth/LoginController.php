@@ -170,7 +170,7 @@ class LoginController extends Controller
         return [
             'status'=>'success',
             'action'=>'otp_verified',
-            'display_message'=>'OTP has been verified successfully',
+            'display_message'=>'Login Successful',
             'data'=>compact('token')
         ];
 
@@ -227,7 +227,7 @@ class LoginController extends Controller
         return [
             'status'=>'success',
             'action'=>'otp_verified',
-            'display_message'=>'OTP has been verified successfully',
+            'display_message'=>'Login Successful',
             'data'=>compact('token')
         ];
 

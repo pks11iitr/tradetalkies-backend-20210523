@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Chat;
+use App\Models\ChatUserList;
 use App\Models\Customer;
 use App\Services\Notification\FCMNotification;
 use Carbon\Carbon;
@@ -12,6 +13,37 @@ use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
+    public function search(request $request){
+        $user=$request->user;
+
+        $search=$request->search;
+
+        $users=ChatUserList::with('listuser')
+            ->where('customer_id', $user->id)
+            ->whereHas('listuser', function($listuser) use($search){
+                $listuser->where('isactive', 1)
+                        ->where(function($listuser) use($search){
+                            $listuser->where('name', 'like', '%'.$search.'%')
+                                ->orWhere('username', 'like', '%'.$search.'%');
+                        });
+            })
+            ->skip(0)->take(10)
+            ->get();
+
+        $users=$users->map(function($element){
+            return $element->listuser->only('id', 'name', 'username', 'image');
+        });
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('users')
+        ];
+
+
+    }
+
     public function chatlist(Request $request){
 
         $user=$request->user;
@@ -287,8 +319,9 @@ class ChatController extends Controller
                 ->where('user_2', $user->id);
         })->first();
 
-        if (!$chat)
+        if (!$chat){
             $is_first_approved = 0;
+        }
         else if ($chat->user_1 == $user->id && $chat->direction == 0 && $chat->is_first_approved == 0) {
             return [
                 'status'=>'failed',
@@ -311,7 +344,7 @@ class ChatController extends Controller
         }
 
 
-        if($user->id<$user_id){
+        if($user->id < $user_id){
 
             $chat=Chat::create([
                 'user_1'=>$user->id,
@@ -332,6 +365,12 @@ class ChatController extends Controller
                 'user2_seen_at'=>date('Y-m-d H:i:s')
             ]);
         }
+
+
+        ChatUserList::updateOrcreate([
+            'customer_id'=>$user_id,
+            'chat_user_id'=>$user->id
+        ], ['last_chat_id'=>$chat->id]);
 
         if($request->image)
             $chat->saveImage($request->image, 'chats');

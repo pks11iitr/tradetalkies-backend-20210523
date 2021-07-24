@@ -10,6 +10,7 @@ use App\Services\SMS\Nimbusit;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -177,6 +178,54 @@ class LoginController extends Controller
     }
 
     public function facebookLogin(Request $request){
+        $user=Socialite::driver('facebook')->user();
+
+
+        if (!isset($user->email)) {
+            return [
+                'status'=>'failed',
+                'action'=>'invalid_token',
+                'display_message'=>'Invalid Token Request',
+                'data'=>[]
+            ];
+        }
+        $email=$user->email;
+        $name=$user->name??'';
+        //$picture=$payload['picture']??'';
+
+        $user=Customer::where('email', $email)->first();
+        if(!$user){
+            $user=Customer::create([
+                'name'=>$name,
+                'email'=>$email,
+                'email_verified_at'=>date('Y-m-d H:i:s'),
+                'username'=>'TTK'.time(),
+                'password'=>'none',
+                'status'=>1
+            ]);
+        }
+
+        if(!in_array($user->status, [0,1]))
+            return [
+                'status'=>'failed',
+                'action'=>'account_blocked',
+                'display_message'=>'This account has been blocked',
+                'data'=>[]
+            ];
+
+
+        $user->notification_token=$request->notification_token;
+        $user->save();
+
+        $token=Auth::guard('customerapi')->fromUser($user);
+
+        return [
+            'status'=>'success',
+            'action'=>'otp_verified',
+            'display_message'=>'OTP has been verified successfully',
+            'data'=>compact('token')
+        ];
+
 
     }
 

@@ -178,8 +178,13 @@ class LoginController extends Controller
     }
 
     public function facebookLogin(Request $request){
-        $user=Socialite::driver('facebook')->user();
 
+        $request->validate([
+            'facebook_token'=>'required',
+            'notification_token'=>'required',
+        ]);
+
+        $user=Socialite::driver('facebook')->getUserByToken($request->facebook_token);
 
         if (!isset($user->email)) {
             return [

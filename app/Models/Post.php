@@ -13,7 +13,7 @@ class Post extends Model
 
     protected $table='posts';
 
-    protected $fillable=['parent_id', 'customer_id', 'content', 'room_id', 'views', 'level'];
+    protected $fillable=['parent_id', 'customer_id', 'content', 'room_id', 'views', 'level', 'shared_post_id'];
 
     public function stocks(){
         return $this->belongsToMany('App\Models\Stock', 'stock_posts', 'post_id', 'stock_id');
@@ -41,8 +41,13 @@ class Post extends Model
     }
 
     public function shared(){
-        return $this->hasMany('App\Models\Post', 'shared_post_id');
+        return $this->hasmany('App\Models\Post', 'shared_post_id');
     }
+
+    public function sharedPost(){
+        return $this->belongsTo('App\Models\Post', 'shared_post_id');
+    }
+
 
     public function mentions(){
         return $this->belongsToMany('App\Models\Customer', 'post_mentions', 'post_id', 'customer_id');
@@ -120,6 +125,20 @@ class Post extends Model
                     ];
                 }
 
+            }
+
+            if(!empty($feed->shared_post_id)){
+                $f_mentions=$feed->sharedPost->mentions;
+                foreach($f_mentions as $m){
+                    if(!in_array($m->id, $mentions_ids)){
+                        $mentions_ids[]=$m->id;
+                        $mentions[]=[
+                            'id'=>'@#'.$m->id.'#',
+                            'name'=>$m->name
+                        ];
+                    }
+
+                }
             }
         }
 

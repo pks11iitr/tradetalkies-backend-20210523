@@ -46,9 +46,18 @@ class PostController extends Controller
         })->toArray();
 
 
-        $feeds=Post::with(['gallery', 'mentions', 'customer'=>function($customer){
+        $feeds=Post::with(['gallery', 'mentions'=>function($mention){
+            $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+        }, 'customer'=>function($customer){
             $customer->select('id', 'username', 'name', 'image');
-        }])->withCount(['replies', 'likes', 'shared'])
+        },'sharedPost'=>function($shared){
+            $shared->with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            }]);
+        }
+            ])->withCount(['replies', 'likes', 'shared'])
             //self created posts
             ->where('parent_id', null)
             ->where(function($query) use($user,$followings,$rooms){
@@ -73,7 +82,7 @@ class PostController extends Controller
 
         $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 
-        $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
+        $feeds=$feeds->paginate(1);
 
         $mentions=Post::getMentionsList($feeds);
 
@@ -119,9 +128,18 @@ class PostController extends Controller
         })->toArray();
 
 
-        $feeds=Post::with(['gallery', 'customer'=>function($customer){
+        $feeds=Post::with(['gallery', 'mentions'=>function($mention){
+            $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+        }, 'customer'=>function($customer){
             $customer->select('id', 'username', 'name', 'image');
-        }])->withCount(['replies', 'likes', 'shared'])
+        },'sharedPost'=>function($shared){
+            $shared->with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            }]);
+        }
+        ])->withCount(['replies', 'likes', 'shared'])
             //self created posts
             ->where('parent_id', null)
             ->where(function($query) use($user,$followings,$rooms){
@@ -196,9 +214,18 @@ class PostController extends Controller
 
         //die;
 
-        $feeds=Post::with(['gallery', 'customer'=>function($customer){
-            $customer->select('customers.id', 'username', 'name', 'image');
-        }])
+        $feeds=Post::with(['gallery', 'mentions'=>function($mention){
+            $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+        }, 'customer'=>function($customer){
+            $customer->select('id', 'username', 'name', 'image');
+        },'sharedPost'=>function($shared){
+            $shared->with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            }]);
+        }
+        ])
             ->withCount(['replies', 'likes', 'shared'])
             ->where('parent_id', null)
             ->whereHas('stocks', function($stocks) use($watchlist){
@@ -272,11 +299,18 @@ class PostController extends Controller
 
         $user=$request->user;
 
-        $post=Post::with(['gallery', 'customer'=>function($customer){
-            $customer->select('customers.id', 'name', 'username', 'image');
-        }, 'mentions'=>function($customer){
-            $customer->select('customers.id', 'name', 'username', 'image');
-        }])->withCount(['replies', 'likes', 'shared'])
+        $post=Post::with(['gallery', 'mentions'=>function($mention){
+            $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+        }, 'customer'=>function($customer){
+            $customer->select('id', 'username', 'name', 'image');
+        },'sharedPost'=>function($shared){
+            $shared->with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            }]);
+        }
+        ])->withCount(['replies', 'likes', 'shared'])
             ->find($post_id);
 
         $post_ids=[$post->id];
@@ -392,12 +426,13 @@ class PostController extends Controller
             'images'=>'array',
             'stock_ids'=>'array',
             'room_id'=>'integer',
-            'mentions'=>'array'
+            'mentions'=>'array',
+            'shared_post_id'=>'nullable|integer'
         ]);
 
         $user=$request->user;
 
-        $post=new Post($request->only('parent_id', 'content', 'room_id'));
+        $post=new Post($request->only('parent_id', 'content', 'room_id', 'shared_post_id'));
         $user->posts()->save($post);
 
         if($request->stock_ids)

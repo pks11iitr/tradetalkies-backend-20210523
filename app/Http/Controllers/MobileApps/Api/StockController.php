@@ -27,11 +27,18 @@ class StockController extends Controller
         })->toArray();
 
 
-        $feeds=Post::with(['gallery'=>function($gallery){
-            $gallery->select('id', 'image');
+        $feeds=Post::with(['gallery', 'mentions'=>function($mention){
+            $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
         }, 'customer'=>function($customer){
-            $customer->select('id', 'username', 'image');
-        }])->withCount(['replies', 'likes', 'shared'])
+            $customer->select('id', 'username', 'name', 'image');
+        },'sharedPost'=>function($shared){
+            $shared->with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            }]);
+        }
+        ])->withCount(['replies', 'likes', 'shared'])
             ->whereHas('stocks', function($stocks) use($stock){
                 $stocks->where('stocks.id', $stock->id);
             })
@@ -53,6 +60,7 @@ class StockController extends Controller
             ->paginate(env('PAGE_RESULT_COUNT'));
 
         Post::get_like_status($feeds,$user);
+        Post::getReportStatus($feeds,$user);
 
         if($user->watchlist()->where('stocks.id', $stock_id)->first())
             $added_to_watchlist=1;
@@ -61,20 +69,21 @@ class StockController extends Controller
 
         $webview=route('stock.webview', ['stock_id'=>$stock->id]);
 
-        $mentions=[
-            [
-                'id'=>'@#1#',
-                'name'=>'Pankaj Sengar'
-            ],
-            [
-                'id'=>'@#2#',
-                'name'=>'Bharat Arora'
-            ],
-            [
-                'id'=>'@#3#',
-                'name'=>'Random'
-            ],
-        ];
+//        $mentions=[
+//            [
+//                'id'=>'@#1#',
+//                'name'=>'Pankaj Sengar'
+//            ],
+//            [
+//                'id'=>'@#2#',
+//                'name'=>'Bharat Arora'
+//            ],
+//            [
+//                'id'=>'@#3#',
+//                'name'=>'Random'
+//            ],
+//        ];
+        $mentions=Post::getMentionsList($feeds);
 
         return [
             'status'=>'success',

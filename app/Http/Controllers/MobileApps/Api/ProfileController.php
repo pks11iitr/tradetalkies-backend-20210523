@@ -116,15 +116,26 @@ class ProfileController extends Controller
             else
                 $profile->is_followed=0;
 
-            $posts=Post::with(['gallery', 'customer'=>function($customer){
-                $customer->select('customers.id', 'name', 'username', 'image');
-            }])->withCount(['replies', 'likes', 'shared'])
+            $posts=Post::with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            },'sharedPost'=>function($shared){
+                $shared->with(['gallery', 'mentions'=>function($mention){
+                    $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+                }, 'customer'=>function($customer){
+                    $customer->select('id', 'username', 'name', 'image');
+                }]);
+            }
+            ])->withCount(['replies', 'likes', 'shared'])
                 ->where('posts.customer_id', $profile->id)
                 ->orderBy('posts.created_at', 'desc');;
 
             $posts=$posts->paginate(env('PAGE_RESULT_COUNT'));
 
             Post::get_like_status($posts,$user);
+            Post::getReportStatus($feeds,$user);
+            $mentions=Post::getMentionsList($feeds);
 
         }else{
             $profile->display_follow=0;
@@ -141,13 +152,15 @@ class ProfileController extends Controller
             $posts=$posts->paginate(env('PAGE_RESULT_COUNT'));
 
             Post::get_like_status($posts,$user);
+            Post::getReportStatus($feeds,$user);
+            $mentions=Post::getMentionsList($feeds);
         }
 
         return [
             'status'=>'success',
             'action'=>'success',
             'display_message'=>'',
-            'data'=>compact('profile', 'posts')
+            'data'=>compact('profile', 'posts', 'mentions')
         ];
 
 

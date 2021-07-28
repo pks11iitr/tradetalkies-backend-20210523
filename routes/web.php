@@ -21,8 +21,9 @@ Route::get('/', function () {
 //    return view('dashboard');
 //})->middleware(['auth'])->name('dashboard');
 
-
+Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 Route::group(['middleware'=>['auth', 'acl'], 'is'=>'admin'], function() {
+
 
 //    Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 //

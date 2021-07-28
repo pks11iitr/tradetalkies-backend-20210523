@@ -134,8 +134,8 @@ class ProfileController extends Controller
             $posts=$posts->paginate(env('PAGE_RESULT_COUNT'));
 
             Post::get_like_status($posts,$user);
-            Post::getReportStatus($feeds,$user);
-            $mentions=Post::getMentionsList($feeds);
+            Post::getReportStatus($posts,$user);
+            $mentions=Post::getMentionsList($posts);
 
         }else{
             $profile->display_follow=0;

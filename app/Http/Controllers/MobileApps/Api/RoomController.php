@@ -114,9 +114,18 @@ class RoomController extends Controller
         else
             $room->create_post=0;
 
-        $feeds=Post::with(['gallery', 'mentions', 'customer'=>function($customer){
+        $feeds=Post::with(['gallery', 'mentions'=>function($mention){
+            $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+        }, 'customer'=>function($customer){
             $customer->select('id', 'username', 'name', 'image');
-        }])->withCount(['replies', 'likes', 'shared'])
+        },'sharedPost'=>function($shared){
+            $shared->with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            }]);
+        }
+        ])->withCount(['replies', 'likes', 'shared'])
             //self created posts
             ->where('parent_id', null)
 //            ->where(function($query) use($user,$followings,$rooms){

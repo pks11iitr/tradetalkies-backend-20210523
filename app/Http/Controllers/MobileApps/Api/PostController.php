@@ -423,9 +423,9 @@ class PostController extends Controller
     public function store(Request $request){
         $request->validate([
             'content'=>'required|max:1000',
-            'images'=>'array',
-            'stock_ids'=>'array',
-            'room_id'=>'integer',
+            'images'=>'nullable|array',
+            'stock_ids'=>'nullable|array',
+            'room_id'=>'nullable|integer',
             'mentions'=>'array',
             'shared_post_id'=>'nullable|integer'
         ]);

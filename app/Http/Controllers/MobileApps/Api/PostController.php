@@ -82,7 +82,7 @@ class PostController extends Controller
 
         $feeds=Post::applyDateSearchFilter($feeds,$request->date_type, $request->date_start,$request->date_end, $request->search_term);
 
-        $feeds=$feeds->paginate(1);
+        $feeds=$feeds->paginate(env('PAGE_RESULT_COUNT'));
 
         $mentions=Post::getMentionsList($feeds);
 

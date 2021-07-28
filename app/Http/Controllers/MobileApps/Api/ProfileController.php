@@ -143,9 +143,18 @@ class ProfileController extends Controller
             $profile->is_followed=0;
             $profile->options_type='self';
 
-            $posts=Post::with(['gallery', 'customer'=>function($customer){
-                $customer->select('customers.id', 'username', 'image');
-            }])->withCount(['replies', 'likes', 'shared'])
+            $posts=Post::with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            },'sharedPost'=>function($shared){
+                $shared->with(['gallery', 'mentions'=>function($mention){
+                    $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+                }, 'customer'=>function($customer){
+                    $customer->select('id', 'username', 'name', 'image');
+                }]);
+            }
+            ])->withCount(['replies', 'likes', 'shared'])
                 ->where('posts.customer_id', $profile->id)
                 ->orderBy('posts.created_at', 'desc');;
 

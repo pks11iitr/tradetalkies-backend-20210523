@@ -48,6 +48,12 @@ class Post extends Model
         return $this->belongsTo('App\Models\Post', 'shared_post_id');
     }
 
+    public function getSharedPostIdAttribute($value){
+        if($value)
+            return $value;
+        return '';
+    }
+
 
     public function mentions(){
         return $this->belongsToMany('App\Models\Customer', 'post_mentions', 'post_id', 'customer_id');

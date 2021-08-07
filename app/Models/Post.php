@@ -91,11 +91,22 @@ class Post extends Model
             return $element->id;
         })->toArray();
 
+        $notified=$user->notify_me->map(function($element){
+            return $element->id;
+        })->toArray();
+
         foreach($feeds as $f){
             if(in_array($f->id, $reported))
                 $f->is_reported=1;
             else
                 $f->is_reported=0;
+
+            if(in_array($f->customer_id, $notified))
+                $f->is_notified=1;
+            else
+                $f->is_notified=0;
+
+
         }
 
     }

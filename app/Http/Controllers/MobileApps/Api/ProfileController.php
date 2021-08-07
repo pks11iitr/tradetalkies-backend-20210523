@@ -229,7 +229,16 @@ class ProfileController extends Controller
 
         $profile=Customer::findOrFail($profile_id);
 
-        $user->notify_me()->syncWithoutDetaching([$profile_id]);
+        $is_notified=$user->notify_me()->where('post_notify.profile_id', $profile_id)->get();
+        if(!$is_notified)
+        {
+            $user->notify_me()->syncWithoutDetaching([$profile_id]);
+        }else{
+            $user->notify_me()->detach([$profile_id]);
+        }
+
+
+
 
 
         return [

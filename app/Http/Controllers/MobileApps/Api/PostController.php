@@ -385,6 +385,11 @@ class PostController extends Controller
             return $element->id;
         })->toArray();
 
+        $notified=$user->notify_me->map(function($element){
+            return $element->id;
+        })->toArray();
+
+        $post->is_notified=in_array($post->customer_id, $notified)?1:0;
         $post->is_liked=in_array($post->id, $user_likes)?1:0;
         $post->is_reported=in_array($post->id, $reported)?1:0;
         $post->options_type=($post->customer_id==$user->id)?'self':'other';
@@ -398,6 +403,7 @@ class PostController extends Controller
                 $reply->is_reported=1;
             else
                 $reply->is_reported=0;
+            $reply->is_notified=in_array($reply->customer_id, $notified)?1:0;
             foreach($reply->replies['data'] as $rreply){
                 $rreply->is_liked = in_array($rreply->id, $user_likes)?1:0;
                 $rreply->options_type=($user->id!=$rreply->customer_id)?'other':'self';
@@ -405,6 +411,8 @@ class PostController extends Controller
                     $rreply->is_reported=1;
                 else
                     $rreply->is_reported=0;
+                $rreply->is_notified=in_array($rreply->customer_id, $notified)?1:0;
+
             }
         }
 

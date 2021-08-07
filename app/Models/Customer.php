@@ -156,5 +156,9 @@ class Customer extends Authenticatable implements JWTSubject
         return $this->belongsToMany('App\Models\Customer', 'report_profile', 'profile_id', 'user_id');
     }
 
+    public function notify_me(){
+        return $this->belongsToMany('App\Models\Customer', 'post_notify', 'user_id', 'profile_id');
+    }
+
 
 }

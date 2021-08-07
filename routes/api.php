@@ -89,6 +89,8 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->post('send-message/{id}', 'MobileApps\Api\ChatController@send');
     $api->post('chat-search', 'MobileApps\Api\ChatController@search');
 
+    $api->get('notify-me/{profile_id}', 'MobileApps\Api\ProfileController@notify_me');
+
 });
 
 $api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@webview')->name('stock.webview');
@@ -97,3 +99,4 @@ $api->get('stock-chart/{stock_id}', 'MobileApps\Api\StockController@webview')->n
 $api->post('verify-payment', 'MobileApps\Api\PaymentController@verifyPayment');
 
 $api->get('notifications', 'MobileApps\Api\NotificationController@index');
+$api->get('room-rules', 'MobileApps\Api\RoomController@room_rules');

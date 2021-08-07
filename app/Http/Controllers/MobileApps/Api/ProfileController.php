@@ -223,7 +223,22 @@ class ProfileController extends Controller
         ];
     }
 
-    public function message(Request $request, $id){
+    public function notify_me(Request $request, $profile_id){
+
+        $user=$request->user;
+
+        $profile=Customer::findOrFail($profile_id);
+
+        $user->notify_me()->syncWithoutDetaching([$profile_id]);
+
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'Notifications have been updated',
+            'data'=>[]
+        ];
+
 
     }
 

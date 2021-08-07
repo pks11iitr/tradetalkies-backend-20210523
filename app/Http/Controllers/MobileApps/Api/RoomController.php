@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MobileApps\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\Customer;
 use App\Models\Post;
 use App\Models\Room;
@@ -223,6 +224,23 @@ class RoomController extends Controller
 //@order_rank := IF(@current_room = room_id, @order_rank + 1, 1) AS order_rank,
 //@current_room := room_id
 //FROM posts, (SELECT @order_rank := 0, @current_room :=0) r where room_id is not null and  parent_id is null ORDER BY room_id desc,id DESC ) as temp where order_rank=1
+
+    public function room_rules(Request $request){
+        $rulesobj=Configuration::where('param_name', ['room_rules', 'stock_market_prices', 'room_post_rules'])->get();
+
+        $rules=[];
+        foreach($rulesobj as $r){
+            $rules[$r->param_name]=$r->param_value;
+        }
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('rules')
+        ];
+
+    }
 
 
 }

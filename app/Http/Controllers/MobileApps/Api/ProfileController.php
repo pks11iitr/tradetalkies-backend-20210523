@@ -175,6 +175,81 @@ class ProfileController extends Controller
 
     }
 
+    public function detailByUsername(Request $request, $username=null){
+        $user=$request->user;
+        if($username)
+            $profile=Customer::withCount(['posts', 'followers', 'followings'])
+                ->where('username', $username)->first($username);
+        else
+            $profile=Customer::withCount(['posts', 'followers', 'followings'])->findOrFail($user->id);
+        if($profile->id!=$user->id){
+            $profile->display_follow=1;
+            $profile->display_message=1;
+            $profile->options_type='other';
+            if($user->followings()->where('customers.id', $profile->id)->first())
+                $profile->is_followed=1;
+            else
+                $profile->is_followed=0;
+
+            $posts=Post::with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            },'sharedPost'=>function($shared){
+                $shared->with(['gallery', 'mentions'=>function($mention){
+                    $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+                }, 'customer'=>function($customer){
+                    $customer->select('id', 'username', 'name', 'image');
+                }]);
+            }
+            ])->withCount(['replies', 'likes', 'shared'])
+                ->where('posts.customer_id', $profile->id)
+                ->orderBy('posts.created_at', 'desc');;
+
+            $posts=$posts->paginate(env('PAGE_RESULT_COUNT'));
+
+            Post::get_like_status($posts,$user);
+            Post::getReportStatus($posts,$user);
+            $mentions=Post::getMentionsList($posts);
+
+        }else{
+            $profile->display_follow=0;
+            $profile->display_message=0;
+            $profile->is_followed=0;
+            $profile->options_type='self';
+
+            $posts=Post::with(['gallery', 'mentions'=>function($mention){
+                $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+            }, 'customer'=>function($customer){
+                $customer->select('id', 'username', 'name', 'image');
+            },'sharedPost'=>function($shared){
+                $shared->with(['gallery', 'mentions'=>function($mention){
+                    $mention->select('post_mentions.customer_id as id', 'username', 'name', 'image');
+                }, 'customer'=>function($customer){
+                    $customer->select('id', 'username', 'name', 'image');
+                }]);
+            }
+            ])->withCount(['replies', 'likes', 'shared'])
+                ->where('posts.customer_id', $profile->id)
+                ->orderBy('posts.created_at', 'desc');;
+
+            $posts=$posts->paginate(env('PAGE_RESULT_COUNT'));
+
+            Post::get_like_status($posts,$user);
+            Post::getReportStatus($posts,$user);
+            $mentions=Post::getMentionsList($posts);
+        }
+
+        return [
+            'status'=>'success',
+            'action'=>'success',
+            'display_message'=>'',
+            'data'=>compact('profile', 'posts', 'mentions')
+        ];
+
+
+    }
+
     public function block(Request $request, $profile_id){
         $user=$request->user;
         $profile=Customer::findOrFail($profile_id);

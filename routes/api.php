@@ -53,6 +53,7 @@ $api->group(['middleware' => ['customer-api-auth']], function ($api) {
     $api->post('set-profile', 'MobileApps\Api\ProfileController@setProfile');
 
     $api->get('profile/details/{id?}', 'MobileApps\Api\ProfileController@details');
+    $api->get('user/details/{username?}', 'MobileApps\Api\ProfileController@detailByUsername');
 
     $api->get('follow/{id}', 'MobileApps\Api\FollowController@follow');
     $api->get('followers/{id}', 'MobileApps\Api\FollowController@followers');

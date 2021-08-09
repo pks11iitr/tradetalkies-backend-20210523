@@ -29,11 +29,15 @@ class SearchController extends Controller
     public function mentionsList(Request $request){
         $user=$request->user;
         $search=$request->search??'';
-        $profiles=Customer::where('name', 'like', '%'.$search.'%')
-            ->orWhere('username', 'like', '%'.$search.'%')
+        $profiles=Customer::where(function($query) use($search){
+            $query->where('name', 'like', '%'.$search.'%')
+                ->orWhere('username', 'like', '%'.$search.'%');
+        })
             ->select('id', 'name', 'username', 'image')
             ->where('id','!=', $user->id)
-            ->paginate(10);
+            ->orderBy('id', 'desc')
+            ->skip(0)->take(500)
+            ->get();
 
         return [
             'status'=>'success',
@@ -41,7 +45,5 @@ class SearchController extends Controller
             'display_message'=>'',
             'data'=>compact('profiles')
         ];
-
     }
-
 }

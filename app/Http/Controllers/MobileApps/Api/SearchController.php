@@ -29,7 +29,7 @@ class SearchController extends Controller
     public function mentionsList(Request $request){
         $user=$request->user;
         $search=$request->search??'';
-        $profiles=Customer::where(function($query) use($search){
+        $profilesobj=Customer::where(function($query) use($search){
             $query->where('name', 'like', '%'.$search.'%')
                 ->orWhere('username', 'like', '%'.$search.'%');
         })
@@ -38,6 +38,12 @@ class SearchController extends Controller
             ->orderBy('id', 'desc')
             ->skip(0)->take(500)
             ->get();
+
+        $profiles=[];
+        foreach ($profilesobj as $p){
+            $p->username='@'.$p->username;
+            $profiles[]=$p;
+        }
 
         return [
             'status'=>'success',
